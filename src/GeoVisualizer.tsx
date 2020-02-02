@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { RouteComponentProps } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
-import { useTitle } from "react-use";
+import { useTitle, useEffectOnce, useAsync } from "react-use";
+import * as d3 from "d3";
+import { ExtendedFeatureCollection, ExtendedGeometryCollection } from 'd3';
+import Provinces from "./Provinces";
 
 interface IGeoVisualizerRoutes {
 
@@ -31,7 +34,15 @@ const GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = () => {
   const region = intl.formatMessage(messages.filters.nation);
   useTitle(intl.formatMessage(messages.title, { region: region }));
 
-  return <div>geo</div>;
+  const state = useAsync<ExtendedFeatureCollection>(async () => {
+    return d3.json("data/china.json");
+  });
+
+  return (
+    <div className="container">
+      {state.loading ? "loading" : <Provinces features={state?.value?.features} />}
+    </div>
+  );
 }
 
 export default GeoVisualizer;
