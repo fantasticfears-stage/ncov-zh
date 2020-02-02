@@ -1,26 +1,17 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { Router } from "@reach/router";
+import GeoVisualizer from "./GeoVisualizer";
+import { IntlProvider } from 'react-intl';
 
 const App = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  let locale = "zh";
+
+  return <IntlProvider locale={locale}>
+    <Router>
+      <GeoVisualizer path="/" />
+    </Router>
+  </IntlProvider>;
 }
 
 export default App;
