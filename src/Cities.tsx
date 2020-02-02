@@ -3,10 +3,9 @@ import { RouteComponentProps } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
-import { Selection, ExtendedGeometryCollection, ExtendedFeature, ExtendedFeatureCollection } from 'd3';
-import Cities from './Cities';
+import { Selection, ExtendedFeature } from 'd3';
 
-interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
+interface ICitiesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
   context: Selection<SVGSVGElement | null, any, null, undefined>;
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
@@ -15,13 +14,13 @@ interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature>
 const messages = defineMessages({
 });
 
-const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features, geoGenerator}) => {
-  const ref = useRef<SVGSVGElement>(null);
+const Cities: React.FunctionComponent<ICitiesProps> = ({context, features, geoGenerator}) => {
+  const ref = useRef<SVGPathElement>(null);
+  console.log(features);
 
   useEffectOnce(() => {
-  
     const u = context
-      .select("g")
+      .selectAll("g#a")
       .selectAll('path')
       .data(features);
   
@@ -47,9 +46,7 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
     console.log("out", d);
   }
 
-
-  return <g>
-  </g>
+  return <g id="a"/>
 }
 
-export default Provinces;
+export default Cities;
