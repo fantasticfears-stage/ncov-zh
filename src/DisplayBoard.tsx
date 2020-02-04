@@ -5,9 +5,12 @@ import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import { Selection, ExtendedFeature } from 'd3';
 import { IRegionData } from "./models";
+import Paper from '@material-ui/core/Paper';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
+import Button from '@material-ui/core/Button';
 
 interface IDisplayBoardProps {
-  province: string;
+  province: string | null;
   city?: string;
   data: IRegionData;
 };
@@ -15,15 +18,19 @@ interface IDisplayBoardProps {
 const messages = defineMessages({
 });
 
-const DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({province, city, data}) => {
+const DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ province, city, data }) => {
   const ref = useRef<SVGPathElement>(null);
   return <div>
-    <p>{province}</p>
+    <p>{province === null ? "全国" : province}</p>
     <p>{city}</p>
-    <p>Confirmed {data.confirmed}</p>
-    <p>cured {data.cured}</p>
-    <p>death {data.death}</p>
-    <p>suspected {data.suspected}</p>
+
+    <ButtonGroup size="large" variant="text" color="primary" aria-label="text primary button group">
+      <Button>Confirmed {data.confirmed}</Button>
+      <Button>cured {data.cured}</Button>
+      <Button>death {data.death}</Button>
+      <Button>suspected {data.suspected}</Button>
+    </ButtonGroup>
+
   </div>;
 }
 

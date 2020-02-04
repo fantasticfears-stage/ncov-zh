@@ -10,7 +10,7 @@ interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature>
   context: Selection<SVGSVGElement | null, any, null, undefined>;
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
-  setProvince: React.Dispatch<React.SetStateAction<string>>;
+  setProvince: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 const messages = defineMessages({
@@ -48,7 +48,7 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
   }
 
   function onMouseOut(d: ExtendedFeature) {
-    setProvince("");
+    setProvince(null);
   }
 
   return <g>

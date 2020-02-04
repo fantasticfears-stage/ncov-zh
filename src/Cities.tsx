@@ -10,7 +10,7 @@ interface ICitiesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   setCity: React.Dispatch<React.SetStateAction<string>>;
-  setProvince: React.Dispatch<React.SetStateAction<string>>;
+  setProvince: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 const messages = defineMessages({
