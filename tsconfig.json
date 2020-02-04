@@ -18,11 +18,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "typeRoots" : ["./typings", "./node_modules/@types"],
-    "baseUrl": ".",
-    "paths": {
-      "*" : ["typings/*"]
-  }
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ],
+    "baseUrl": "."
   },
   "include": [
     "src"

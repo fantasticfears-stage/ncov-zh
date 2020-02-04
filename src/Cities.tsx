@@ -9,12 +9,14 @@ interface ICitiesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
   context: Selection<SVGSVGElement | null, any, null, undefined>;
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
+  setCity: React.Dispatch<React.SetStateAction<string>>;
+  setProvince: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const messages = defineMessages({
 });
 
-const Cities: React.FunctionComponent<ICitiesProps> = ({context, features, geoGenerator}) => {
+const Cities: React.FunctionComponent<ICitiesProps> = ({context, features, geoGenerator, setProvince, setCity}) => {
   const ref = useRef<SVGPathElement>(null);
   console.log(features);
 

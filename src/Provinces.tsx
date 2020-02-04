@@ -10,12 +10,13 @@ interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature>
   context: Selection<SVGSVGElement | null, any, null, undefined>;
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
+  setProvince: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const messages = defineMessages({
 });
 
-const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features, geoGenerator}) => {
+const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features, geoGenerator, setProvince}) => {
   const ref = useRef<SVGSVGElement>(null);
 
   useEffectOnce(() => {
@@ -36,7 +37,10 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
   });
 
   function onMouseOver(d: ExtendedFeature) {
-    console.log("over", d?.properties?.name);
+    const name = d?.properties?.name;
+    if (name) {
+      setProvince(name);
+    }
   }
 
   function onMouseClick(d: ExtendedFeature) {
@@ -44,9 +48,8 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
   }
 
   function onMouseOut(d: ExtendedFeature) {
-    console.log("out", d);
+    setProvince("");
   }
-
 
   return <g>
   </g>

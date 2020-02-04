@@ -6,6 +6,8 @@ import * as d3 from "d3";
 import { ExtendedFeatureCollection, ExtendedGeometryCollection } from 'd3';
 import Provinces from "./Provinces";
 import Cities from './Cities';
+import DisplayBoard from './DisplayBoard';
+import { IRegionData } from './models';
 
 interface IGeoVisualizerRoutes {
 
@@ -66,6 +68,13 @@ const GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = () => {
     return d3.json("data/province/an_hui_geo.json");
   });
 
+  useEffectOnce(() => {
+    d3.csv("data/DXYArea.csv").then((row) => {
+
+      console.log(row);
+    });
+  });
+
   const projection = d3.geoConicEqualArea();
   projection
     .rotate([-70, 20])
@@ -74,12 +83,32 @@ const GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = () => {
   const geoGenerator = d3.geoPath()
     .projection(projection);
 
-  return (
+  const data: IRegionData = {
+    confirmed: 0,
+    cured: 0,
+    death: 0,
+    suspected: 0
+  }
+
+  const [province, setProvince] = React.useState<string>("");
+  const [city, setCity] = React.useState<string>("");
+
+  return <div>
+    <DisplayBoard province={province} city={city} data={data} />
     <svg width={1000} height={1000} className="container" ref={ref}>
-      {state.loading ? "loading" : <Provinces geoGenerator={geoGenerator} context={d3.select(ref.current)} features={state?.value?.features!} />}
-      {!stateProvince.loading && <Cities geoGenerator={geoGenerator} context={d3.select(ref.current)} features={stateProvince?.value?.features!} />}
+      {state.loading ? "loading" : <Provinces
+        geoGenerator={geoGenerator}
+        context={d3.select(ref.current)}
+        features={state?.value?.features!}
+        setProvince={setProvince} />}
+      {!stateProvince.loading && <Cities
+        geoGenerator={geoGenerator}
+        context={d3.select(ref.current)}
+        features={stateProvince?.value?.features!}
+        setCity={setCity}
+        setProvince={setProvince} />}
     </svg>
-  );
+  </div>
 }
 
 export default GeoVisualizer;
