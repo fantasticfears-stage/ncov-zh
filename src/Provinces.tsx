@@ -11,12 +11,13 @@ interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature>
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   setProvince: React.Dispatch<React.SetStateAction<string | null>>;
+  moveOverRegionPanel: (d: ExtendedFeature) => void; 
 };
 
 const messages = defineMessages({
 });
 
-const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features, geoGenerator, setProvince}) => {
+const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features, geoGenerator, setProvince, moveOverRegionPanel}) => {
   const ref = useRef<SVGSVGElement>(null);
 
   useEffectOnce(() => {
@@ -44,7 +45,7 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
   }
 
   function onMouseClick(d: ExtendedFeature) {
-    console.log("click", d);
+    moveOverRegionPanel(d);
   }
 
   function onMouseOut(d: ExtendedFeature) {

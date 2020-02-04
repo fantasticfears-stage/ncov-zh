@@ -9,7 +9,7 @@ interface ICitiesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
   context: Selection<SVGSVGElement | null, any, null, undefined>;
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
-  setCity: React.Dispatch<React.SetStateAction<string>>;
+  setCity: React.Dispatch<React.SetStateAction<string | null>>;
   setProvince: React.Dispatch<React.SetStateAction<string | null>>;
 };
 

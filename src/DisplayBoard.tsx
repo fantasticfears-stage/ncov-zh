@@ -10,19 +10,17 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 
 interface IDisplayBoardProps {
-  province: string | null;
-  city?: string;
+  name: string;
   data: IRegionData;
 };
 
 const messages = defineMessages({
 });
 
-const DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ province, city, data }) => {
+const DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ name, data }) => {
   const ref = useRef<SVGPathElement>(null);
   return <div>
-    <p>{province === null ? "全国" : province}</p>
-    <p>{city}</p>
+    <p>{name}</p>
 
     <ButtonGroup size="large" variant="text" color="primary" aria-label="text primary button group">
       <Button>Confirmed {data.confirmed}</Button>
