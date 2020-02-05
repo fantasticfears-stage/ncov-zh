@@ -26,6 +26,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <Router>
         <GeoVisualizer path="/" />
+        <GeoVisualizer path="/region" />
       </Router>
     </ThemeProvider>
 

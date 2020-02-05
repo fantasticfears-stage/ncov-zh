@@ -3,7 +3,7 @@ import { WithStyles } from "@material-ui/styles/withStyles";
 import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps, navigate } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
@@ -99,7 +99,7 @@ function a11yProps(index: string) {
   };
 }
 
-const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes }) => {
+const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes, location, path }) => {
   const intl = useIntl();
   const regionLabel = intl.formatMessage(messages.filters.nation);
   useTitle(intl.formatMessage(messages.title, { region: regionLabel }));
@@ -129,11 +129,11 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes 
     death: 0,
     suspected: 0
   }
-
   const [province, setProvince] = React.useState<string | null>(null);
-  const [region, setRegion] = React.useState<string | null>(null);
+  const params = new URLSearchParams(location?.search);
+  const [region, setRegion] = React.useState<string | null>(params.get('province'));
   const [city, setCity] = React.useState<string | null>(null);
-  const [value, setValue] = React.useState<'nation-tab' | 'region-tab'>('nation-tab');
+  const [value, setValue] = React.useState<'nation-tab' | 'region-tab'>(region === null ? 'nation-tab' : 'region-tab');
 
   const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
     return region === null ?
@@ -145,10 +145,16 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes 
     setValue(newValue);
   };
 
+  const getRegionUrl = (regionName: string) => {
+    const redirectUrl = `region?province=${encodeURIComponent(regionName)}`;
+    return redirectUrl;
+  }
+
   const moveOverRegionPanel = (d: ExtendedFeature) => {
-    console.log(d);
-    setRegion(d?.properties?.name as string);
-    setValue("region-tab");
+    const regionName = d?.properties?.name as string;
+    setRegion(regionName);
+    const redirectUrl = getRegionUrl(regionName);
+    navigate(redirectUrl);
   }
 
   const theme = useTheme();
@@ -160,13 +166,14 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes 
         <Tab
           value="nation-tab"
           label={intl.formatMessage(messages.filters.nation)}
-          wrapped
+          onClick={() => { path?.startsWith("/region") && navigate("..") }}
           {...a11yProps('nation-tab')}
         />
         <Tab
           value="region-tab"
           disabled={!region}
           label={region === null ? intl.formatMessage(messages.filters.region) : region}
+          onClick={() => { path?.startsWith("/region") && navigate("..") }}
           {...a11yProps('region-tab')}
         />
       </Tabs>
