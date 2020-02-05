@@ -26,14 +26,23 @@ interface INationTabVisualizer extends WithStyles<typeof styles> {
   name: string;
   data: IRegionData;
   state: AsyncState<ExtendedFeatureCollection>;
-  features: any;
+  dataState: AsyncState<d3.DSVRowArray<string>>;
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   setProvince: React.Dispatch<React.SetStateAction<string | null>>;
   moveOverRegionPanel: (d: ExtendedFeature) => void;
 };
 
+// formula: (cut, dProp) => +data[cut].conNum,
+// dataDefault: +raw.data.gntotal,
+// style: {
+//     paint: d3.scalePow()
+//         .interpolate(() => d3.interpolateCividis)
+//         .exponent(0.3)
+//         .domain([0, 1500]),
+//     interpolation: d3.interpolateCividis
+// },
 
-const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ name, data, features, state, geoGenerator, moveOverRegionPanel, setProvince }) => {
+const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ name, data, dataState, state, geoGenerator, moveOverRegionPanel, setProvince }) => {
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
@@ -41,10 +50,11 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ n
       </Grid>
       <Grid item md={8} xs={12}>
         <svg width={1000} height={1000} className="container">
-          {state.loading ? "loading" : <Provinces
+          {state.loading && dataState.loading ? "loading" : <Provinces
             moveOverRegionPanel={moveOverRegionPanel}
             geoGenerator={geoGenerator}
-            features={features}
+            features={state.value?.features!}
+            data={dataState?.value}
             setProvince={setProvince} />}
         </svg>
       </Grid>

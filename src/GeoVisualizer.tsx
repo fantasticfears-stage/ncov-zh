@@ -78,7 +78,6 @@ const GEO_MAP: Record<string, string> = {
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
-  console.log("panel", value, index, "hidden", value !== index);
   return (
     <Typography
       component="div"
@@ -108,11 +107,8 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     return d3.json("data/china.json");
   });
 
-  useEffectOnce(() => {
-    d3.csv("data/DXYArea.csv").then((row) => {
-
-      console.log(row);
-    });
+  const dataState = useAsync<d3.DSVRowArray<string>>(async () => {
+    return d3.csv("data/DXYArea.csv");
   });
 
   const projection = d3.geoConicEqualArea();
@@ -183,9 +179,9 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         name={province || intl.formatMessage(messages.filters.nation)}
         data={data}
         state={state}
+        dataState={dataState}
         moveOverRegionPanel={moveOverRegionPanel}
         geoGenerator={geoGenerator}
-        features={state?.value?.features!}
         setProvince={setProvince}
       />
     </TabPanel>
