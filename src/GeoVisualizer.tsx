@@ -8,7 +8,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
-import Provinces from "./Provinces";
+import NationTabVisualizer from "./NationTabVisualizer";
 import Cities from './Cities';
 import DisplayBoard from './DisplayBoard';
 import { IRegionData } from './models';
@@ -19,6 +19,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useTheme from '@material-ui/core/styles/useTheme';
+import ProvinceTabVisualizer from './ProvinceTabVisualizer';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -51,7 +54,7 @@ const messages = defineMessages({
   }
 });
 
-const GEO_MAP = {
+const GEO_MAP: Record<string, string> = {
   '安徽': 'an_hui_geo',
   '澳门': 'ao_men_geo',
   '北京': 'bei_jing_geo',
@@ -75,7 +78,7 @@ const GEO_MAP = {
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
-
+  console.log("panel", value, index, "hidden", value !== index);
   return (
     <Typography
       component="div"
@@ -85,7 +88,7 @@ function TabPanel(props: any) {
       aria-labelledby={`wrapped-tab-${index}`}
       {...other}
     >
-      {value === index && <Box p={3}>{children}</Box>}
+      {value === index && children}
     </Typography>
   );
 }
@@ -96,18 +99,13 @@ function a11yProps(index: string) {
   };
 }
 
-const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = (classes) => {
+const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes }) => {
   const intl = useIntl();
   const regionLabel = intl.formatMessage(messages.filters.nation);
   useTitle(intl.formatMessage(messages.title, { region: regionLabel }));
 
   const state = useAsync<ExtendedFeatureCollection>(async () => {
     return d3.json("data/china.json");
-  });
-  const ref = useRef<SVGSVGElement>(null);
-
-  const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
-    return d3.json("data/province/an_hui_geo.json");
   });
 
   useEffectOnce(() => {
@@ -137,6 +135,12 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = (classes) =
   const [city, setCity] = React.useState<string | null>(null);
   const [value, setValue] = React.useState<'nation-tab' | 'region-tab'>('nation-tab');
 
+  const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
+    return region === null ?
+      new Promise<ExtendedFeatureCollection>((resolve, reject) => { reject(); }) :
+      d3.json(`data/province/${GEO_MAP[region]}.json`);
+  }, [region]);
+
   const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
     setValue(newValue);
   };
@@ -147,9 +151,12 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = (classes) =
     setValue("region-tab");
   }
 
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up('md'));
+
   return <div>
     <AppBar position="static">
-      <Tabs value={value} onChange={handleChange} aria-label="wrapped label tabs example">
+      <Tabs value={value} onChange={handleChange} centered={matches}>
         <Tab
           value="nation-tab"
           label={intl.formatMessage(messages.filters.nation)}
@@ -165,42 +172,26 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = (classes) =
       </Tabs>
     </AppBar>
     <TabPanel value={value} index="nation-tab">
-      <Container>
-        <Grid container>
-          <Grid item md={4} xs={12}>
-            <DisplayBoard name={province || intl.formatMessage(messages.filters.nation)} data={data} />
-          </Grid>
-          <Grid item md={8} xs={12}>
-            <svg width={1000} height={1000} className="container" ref={ref}>
-              {state.loading ? "loading" : <Provinces
-                moveOverRegionPanel={moveOverRegionPanel}
-                geoGenerator={geoGenerator}
-                context={d3.select(ref.current)}
-                features={state?.value?.features!}
-                setProvince={setProvince} />}
-            </svg>
-          </Grid>
-        </Grid>
-      </Container>
+      <NationTabVisualizer
+        name={province || intl.formatMessage(messages.filters.nation)}
+        data={data}
+        state={state}
+        moveOverRegionPanel={moveOverRegionPanel}
+        geoGenerator={geoGenerator}
+        features={state?.value?.features!}
+        setProvince={setProvince}
+      />
     </TabPanel>
     <TabPanel value={value} index="region-tab">
-      <Container>
-        <Grid container>
-          <Grid item md={4} xs={12}>
-            <DisplayBoard name={city ? `${province} / ${city}` : province || intl.formatMessage(messages.filters.nation)} data={data} />
-          </Grid>
-          <Grid item md={8} xs={12}>
-            <svg width={1000} height={1000} className="container" ref={ref}>
-              {!stateProvince.loading && <Cities
-                geoGenerator={geoGenerator}
-                context={d3.select(ref.current)}
-                features={stateProvince?.value?.features!}
-                setCity={setCity}
-                setProvince={setProvince} />}
-            </svg>
-          </Grid>
-        </Grid>
-      </Container>
+      <ProvinceTabVisualizer
+        name={city ? `${province} / ${city}` : province || intl.formatMessage(messages.filters.nation)}
+        data={data}
+        state={stateProvince}
+        geoGenerator={geoGenerator}
+        features={stateProvince?.value?.features!}
+        setCity={setCity}
+        setProvince={setProvince}
+      />
     </TabPanel>
   </div>;
 }

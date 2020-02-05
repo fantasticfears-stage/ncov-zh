@@ -1,13 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { RouteComponentProps } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
-import { useTitle, useEffectOnce, useAsync } from "react-use";
+import { useTitle, useEffectOnce, useAsync, useUpdateEffect } from "react-use";
 import * as d3 from "d3";
 import { Selection, ExtendedGeometryCollection, ExtendedFeature, ExtendedFeatureCollection } from 'd3';
 import Cities from './Cities';
 
 interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
-  context: Selection<SVGSVGElement | null, any, null, undefined>;
   features: FeatureType[];
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   setProvince: React.Dispatch<React.SetStateAction<string | null>>;
@@ -17,15 +16,17 @@ interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature>
 const messages = defineMessages({
 });
 
-const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features, geoGenerator, setProvince, moveOverRegionPanel}) => {
-  const ref = useRef<SVGSVGElement>(null);
+const Provinces: React.FunctionComponent<IProvincesProps> = ({features, geoGenerator, setProvince, moveOverRegionPanel}) => {
+  const ref = useRef<SVGGElement>(null);
 
-  useEffectOnce(() => {
+  console.log("province");
+  const renderGraph = () => {
   
-    const u = context
-      .select("g")
+    const u = d3.select(ref.current)
       .selectAll('path')
       .data(features);
+    console.log(features);
+
   
     u.enter()
       .append('path')
@@ -35,7 +36,10 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
       .on("mouseover", onMouseOver)
       .on("click", onMouseClick)
       .on("mouseout", onMouseOut);
-  });
+    
+      u.exit().remove();
+  };
+  useEffect(renderGraph);
 
   function onMouseOver(d: ExtendedFeature) {
     const name = d?.properties?.name;
@@ -52,8 +56,7 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({context, features,
     setProvince(null);
   }
 
-  return <g>
-  </g>
+  return <g ref={ref}></g>
 }
 
 export default Provinces;
