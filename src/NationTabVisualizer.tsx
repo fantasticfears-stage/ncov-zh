@@ -42,12 +42,9 @@ const FILL_FN_MAP: Record<string, d3.ScalePower<number, string>> = {
 };
 
 interface INationTabVisualizer extends WithStyles<typeof styles> {
-  name: string;
-  data: IRegionData;
   state: AsyncState<ExtendedFeatureCollection>;
   dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
-  setProvince: React.Dispatch<React.SetStateAction<string | null>>;
   moveOverRegionPanel: (d: ExtendedFeature) => void;
 };
 
@@ -55,7 +52,31 @@ function PluckDataByFilter(data: IRegionData, filter: FilterType) {
   return data[filter] || 0;
 }
 
-const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ name, data, dataState, state, geoGenerator, moveOverRegionPanel, setProvince }) => {
+function TryGetDataFromPrefix(byProvince: d3.Map<IRegionData>, prefix: string) {
+  const keys = byProvince.keys();
+  const idx = keys.findIndex(p => p.startsWith(prefix));
+  if (idx !== -1) {
+    const data = byProvince.get(keys[idx]);
+    return data;
+  }
+  return undefined;
+}
+
+const messages = defineMessages({
+  filters: {
+    nation: {
+      id: "geovisualizer.filters.nation",
+      description: "default (nation) filter for region",
+      defaultMessage: "全国"
+    }
+  }
+});
+
+const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ dataState, state, geoGenerator, moveOverRegionPanel }) => {
+  const intl = useIntl();
+
+  const [province, setProvince] = React.useState<string | null>(null);
+  const name = province || intl.formatMessage(messages.filters.nation);
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   useEffect(() => {
     const extracted = (d3.nest<AreaCsvItem, IRegionData>().key(d => d.provinceName).rollup(d => {
@@ -76,14 +97,10 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ n
     const fillFn = FILL_FN_MAP[filter];
 
     const provinceName = d.properties?.name as string;
-    const keys = byProvince.keys();
-    const idx = keys.findIndex(p => p.startsWith(provinceName));
     let num = 0;
-    if (idx !== -1) {
-      const data = byProvince.get(keys[idx]);
-      if (data) {
-        num = PluckDataByFilter(data, filter);
-      }
+    const data = TryGetDataFromPrefix(byProvince, provinceName);
+    if (data) {
+      num = PluckDataByFilter(data, filter);
     }
     return fillFn ? fillFn(num) : '#eeeeee';
   }, [byProvince, filter]);
@@ -92,6 +109,39 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ n
     e.preventDefault();
     setFilter(filter);
   };
+
+  const [data, setData] = React.useState<IRegionData>({
+    confirmed: 0,
+    cured: 0,
+    death: 0,
+    suspected: 0
+  });
+
+  React.useEffect(() => {
+    if (province) {
+      const data = TryGetDataFromPrefix(byProvince, province);
+      if (data) {
+        setData(data);
+      }
+    } else {
+      const total = byProvince.entries().reduce((acc, item) => {
+        const {value} = item;
+        return {
+          confirmed: acc.confirmed + value.confirmed,
+          cured: acc.cured + value.cured,
+          death: acc.death + value.death,
+          suspected: acc.suspected + value.suspected
+        }
+      }, {
+        confirmed: 0,
+        cured: 0,
+        death: 0,
+        suspected: 0
+      });
+      setData(total);
+    }
+
+  }, [province, byProvince]);
 
   return <Container>
     <Grid container>

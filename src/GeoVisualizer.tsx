@@ -208,13 +208,10 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     </AppBar>
     <TabPanel value={value} index="nation-tab">
       <NationTabVisualizer
-        name={province || intl.formatMessage(messages.filters.nation)}
-        data={data}
         state={state}
         dataState={dataState}
         moveOverRegionPanel={moveOverRegionPanel}
         geoGenerator={geoGenerator}
-        setProvince={setProvince}
       />
     </TabPanel>
     <TabPanel value={value} index="region-tab">
