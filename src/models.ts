@@ -32,3 +32,5 @@ export interface AreaCsvItem {
   province_suspectedCount: number;
   updateTime: Date;
 }
+
+export type FilterType = "confirmed" | "cured" | "death" | "suspected";

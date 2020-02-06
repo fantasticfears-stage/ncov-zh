@@ -15,7 +15,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
-import Provinces from './Provinces';
+import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
 import Cities from './Cities';
@@ -37,10 +37,15 @@ interface IProvinceTabVisualizer extends WithStyles<typeof styles> {
 const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ setCity, name, data, features, state, geoGenerator, setProvince }) => {
   const ref = useRef<SVGSVGElement>(null);
 
+  const handleFilterClicked = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: string) => {
+    e.preventDefault();
+    console.log(filter);
+  };
+
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
-        <DisplayBoard name={name} data={data} />
+        <DisplayBoard onClick={handleFilterClicked} name={name} data={data} />
       </Grid>
       <Grid item md={8} xs={12}>
         <svg width={1000} height={1000} className="container" ref={ref}>

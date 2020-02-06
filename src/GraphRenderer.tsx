@@ -9,9 +9,9 @@ import { AsyncState } from 'react-use/lib/useAsync';
 import { AreaCsvItem, IRegionData } from './models';
 import { stringify } from 'querystring';
 
-interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
+interface IGraphRendererProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
   features: FeatureType[];
-  data?: d3.DSVParsedArray<AreaCsvItem>;
+  fillFn: (d: d3.ExtendedFeature) => string;
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   setProvince: React.Dispatch<React.SetStateAction<string | null>>;
   moveOverRegionPanel: (d: ExtendedFeature) => void; 
@@ -21,24 +21,10 @@ interface IProvincesProps<FeatureType extends ExtendedFeature = ExtendedFeature>
 const messages = defineMessages({
 });
 
-const Provinces: React.FunctionComponent<IProvincesProps> = ({features, data, geoGenerator, setProvince, moveOverRegionPanel}) => {
+const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, fillFn, geoGenerator, setProvince, moveOverRegionPanel}) => {
   const ref = useRef<SVGGElement>(null);
-  
-  const fillFn = d3.scalePow()
-    .interpolate(() => d3.interpolateViridis)
-    .exponent(0.3)
-    .domain([0, 1500]);
-  
+
   const renderGraph = () => {
-    const byProvince = d3.nest<AreaCsvItem, IRegionData>().key(d => d.provinceName).rollup(d => {
-      // asserts d.length > 0
-      return {
-        confirmed: d[0].province_confirmedCount,
-        cured: d[0].province_curedCount,
-        death: d[0].province_deadCount,
-        suspected: d[0].province_suspectedCount
-      };
-    }).map(data || []);
     d3.selectAll("g > *").remove(); // TODO: seems we have to remove the nodes before repainting
 
     const u = d3.select(ref.current)
@@ -50,20 +36,14 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({features, data, ge
       .attr('d', geoGenerator)
       .attr('stroke-width', 1)
       .attr('stroke', "#ffffff")
-      .attr('fill', (d: ExtendedFeature) => {
-        const provinceName = d.properties?.name as string;
-        const keys = byProvince.keys();
-        const idx = keys.findIndex(p => p.startsWith(provinceName));
-        const num = idx === -1 ? 0 : byProvince.get(keys[idx]).cured;
-        return fillFn(num);
-      })
+      .attr('fill', fillFn)
       .on("mouseover", onMouseOver)
       .on("click", onMouseClick)
       .on("mouseout", onMouseOut);
     
       u.exit().remove();
   };
-  useEffect(renderGraph, [data]);
+  useEffect(renderGraph, [fillFn]);
 
   function onMouseOver(d: ExtendedFeature) {
     const name = d?.properties?.name;
@@ -83,4 +63,4 @@ const Provinces: React.FunctionComponent<IProvincesProps> = ({features, data, ge
   return <g ref={ref}></g>
 }
 
-export default Provinces;
+export default GraphRenderer;
