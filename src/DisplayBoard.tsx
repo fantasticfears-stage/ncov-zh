@@ -71,7 +71,7 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
           }}
         />
       </Button>
-      <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
+      {/* <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
         <FormattedHTMLMessage
           id="components.display_board.labels.suspected"
           description="Label used on display board"
@@ -80,7 +80,7 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
             num: data.suspected
           }}
         />
-      </Button>
+      </Button> */}
     </ButtonGroup>
 
   </div>;

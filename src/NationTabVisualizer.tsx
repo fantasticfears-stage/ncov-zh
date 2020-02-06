@@ -70,6 +70,13 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
   const name = province || intl.formatMessage(messages.filters.nation);
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   useEffect(() => {
+    const data: AreaCsvItem[] = dataState.value || [];
+    const ts = data.map(d => d.updateTime.toISOString().substr(0, 10));
+    const timestampSet = new Set<string>(ts);
+    const timestamps = Array.from(timestampSet).sort();
+    
+    // const dates = (dataState.value || []).map<AreaCsvItem>(i => i.updateTime)
+    // const lastDay = 
     const extracted = (d3.nest<AreaCsvItem, IRegionData>().key(d => d.provinceName).rollup(d => {
       // asserts d.length > 0
       return {
@@ -78,7 +85,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
         death: d[0].province_deadCount,
         suspected: d[0].province_suspectedCount
       };
-    }).map(dataState.value || []));
+    }).map(data.filter(d => d.updateTime.toISOString().substr(0, 10) === timestamps[timestamps.length - 1])));
     setByProvince(extracted);
   }, [dataState]);
 
