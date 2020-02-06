@@ -8,7 +8,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData } from './models';
+import { IRegionData, AreaCsvItem } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -26,7 +26,7 @@ interface INationTabVisualizer extends WithStyles<typeof styles> {
   name: string;
   data: IRegionData;
   state: AsyncState<ExtendedFeatureCollection>;
-  dataState: AsyncState<d3.DSVRowArray<string>>;
+  dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   setProvince: React.Dispatch<React.SetStateAction<string | null>>;
   moveOverRegionPanel: (d: ExtendedFeature) => void;

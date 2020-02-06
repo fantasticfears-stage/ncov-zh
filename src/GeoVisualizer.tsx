@@ -11,7 +11,7 @@ import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature 
 import NationTabVisualizer from "./NationTabVisualizer";
 import Cities from './Cities';
 import DisplayBoard from './DisplayBoard';
-import { IRegionData } from './models';
+import { IRegionData, AreaCsvItem } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -74,6 +74,21 @@ const GEO_MAP: Record<string, string> = {
   '江苏': 'jiang_su_geo',
   '江西': 'jiang_xi_geo',
   '辽宁': 'liao_ning_geo',
+  '内蒙古': 'nei_meng_gu_geo',
+  '宁夏': 'ning_xia_geo',
+  '青海': 'qing_hai_geo',
+  '山东': 'shan_dong_geo',
+  '山西': 'shan_xi_1_geo',
+  '陕西': 'shan_xi_3_geo',
+  '上海': 'shang_hai_geo',
+  '四川': 'si_chuan_geo',
+  '台湾': 'tai_wan_geo',
+  '天津': 'tian_jin_geo',
+  '西藏': 'xi_zang_geo',
+  '香港': 'xiang_gang_geo',
+  '新疆': 'xin_jiang_geo',
+  '云南': 'yun_nan_geo',
+  '浙江': 'zhe_jiang_geo'
 }
 
 function TabPanel(props: any) {
@@ -97,7 +112,6 @@ function a11yProps(index: string) {
     'aria-controls': `wrapped-tabpanel-${index}`,
   };
 }
-
 const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes, location, path }) => {
   const intl = useIntl();
   const regionLabel = intl.formatMessage(messages.filters.nation);
@@ -107,8 +121,26 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     return d3.json("data/china.json");
   });
 
-  const dataState = useAsync<d3.DSVRowArray<string>>(async () => {
-    return d3.csv("data/DXYArea.csv");
+  const dataState = useAsync<d3.DSVParsedArray<AreaCsvItem>>(async () => {
+    return d3.csv("data/DXYArea.csv", (csv) => {
+      if (csv.cityName === undefined || csv.provinceName === undefined) {
+        return null;
+      }
+      const item = {
+        cityName: csv.cityName,
+        city_confirmedCount: parseInt(csv.city_confirmedCount || "0"),
+        city_curedCount: parseInt(csv.city_curedCount || "0"),
+        city_deadCount: parseInt(csv.city_deadCount || "0"),
+        city_suspectedCount: parseInt(csv.city_suspectedCount || "0"),
+        provinceName: csv.provinceName,
+        province_confirmedCount: parseInt(csv.province_confirmedCount || "0"),
+        province_curedCount: parseInt(csv.province_curedCount || "0"),
+        province_deadCount: parseInt(csv.province_deadCount || "0"),
+        province_suspectedCount: parseInt(csv.province_suspectedCount || "0"),
+        updateTime: csv.updateTime ? new Date(Date.parse(csv.updateTime)) : new Date()
+      };
+      return item;
+    });
   });
 
   const projection = d3.geoConicEqualArea();
