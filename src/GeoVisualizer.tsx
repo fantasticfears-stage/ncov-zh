@@ -11,7 +11,7 @@ import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature 
 import NationTabVisualizer from "./NationTabVisualizer";
 import Cities from './Cities';
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, PROVINCE_META_MAP } from './models';
+import { IRegionData, AreaCsvItem, PROVINCE_META_MAP, FilterType } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -114,12 +114,6 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const geoGenerator = d3.geoPath()
     .projection(projection);
 
-  const data: IRegionData = {
-    confirmed: 0,
-    cured: 0,
-    death: 0,
-    suspected: 0
-  }
   const [province, setProvince] = React.useState<string | null>(null);
   const params = new URLSearchParams(location?.search);
   const [region, setRegion] = React.useState<string | null>(params.get('province'));
@@ -137,7 +131,8 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   };
 
   const getRegionUrl = (regionName: string) => {
-    const redirectUrl = `region?province=${encodeURIComponent(regionName)}`;
+    params.set('province', regionName);
+    const redirectUrl = `region?${params}`;
     return redirectUrl;
   }
 
@@ -151,13 +146,34 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
 
+  const routeFilter = params.get("filter")?.trim() || "";
+  let defaultFilter: FilterType = "confirmed";
+  if (['confirmed', 'deceased', 'discharged'].indexOf(routeFilter) !== -1) {
+    defaultFilter = routeFilter as FilterType;
+  }
+  console.log(routeFilter, defaultFilter);
+  const [filter, setFilter] = React.useState<FilterType>(defaultFilter);
+  useEffect(() => {
+    if (params.get('filter') != filter) {
+      params.set('filter', filter);
+    }
+  }, [filter, params]);
+  const setFilterPushingHistory = (value: FilterType) => {
+    setFilter(value);
+    params.set("filter", value);
+    navigate(`${location?.pathname || "/"}?${params}`);
+  };
+
   return <div>
     <AppBar position="static">
       <Tabs value={value} onChange={handleChange} centered={matches}>
         <Tab
           value="nation-tab"
           label={intl.formatMessage(messages.filters.nation)}
-          onClick={() => { path?.startsWith("/region") && navigate("..") }}
+          onClick={() => { 
+            params.delete('province');
+            path?.startsWith("/region") && navigate(`..?${params}`) 
+          }}
           {...a11yProps('nation-tab')}
         />
         <Tab
@@ -171,9 +187,12 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     </AppBar>
     <TabPanel value={value} index="nation-tab">
       <NationTabVisualizer
+        params={params}
         state={state}
         dataState={dataState}
         moveOverRegionPanel={moveOverRegionPanel}
+        filter={filter}
+        setFilter={setFilterPushingHistory}
       />
     </TabPanel>
     <TabPanel value={value} index="region-tab">
@@ -181,6 +200,8 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         params={params}
         dataState={dataState}
         state={stateProvince}
+        filter={filter}
+        setFilter={setFilterPushingHistory}
       />
     </TabPanel>
   </div>;

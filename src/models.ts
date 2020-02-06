@@ -2,8 +2,8 @@ import * as d3 from "d3";
 
 export interface IRegionData {
   confirmed: number;
-  cured: number;
-  death: number;
+  discharged: number;
+  deceased: number;
   suspected: number;
 }
 
@@ -35,15 +35,15 @@ export interface AreaCsvItem {
   updateTime: Date;
 }
 
-export type FilterType = "confirmed" | "cured" | "death" | "suspected";
+export type FilterType = "confirmed" | "discharged" | "deceased" | "suspected";
 
 export const FILL_FN_MAP: Record<string, d3.ScalePower<number, string>> = {
-  "cured": d3.scalePow()
+  "discharged": d3.scalePow()
     .interpolate(() => d3.interpolateGreens)
     .exponent(0.3)
     .domain([0, 100]),
-  "death": d3.scalePow()
-    .interpolate(() => d3.interpolateGreys)
+  "deceased": d3.scalePow()
+    .interpolate(() => d3.interpolatePurples)
     .exponent(0.2)
     .domain([0, 1000]),
   "confirmed": d3.scalePow()

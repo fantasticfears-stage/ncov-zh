@@ -51,23 +51,23 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
           }}
         />
       </Button>
-      <Button className={classes.filterButton} onClick={(e) => onClick(e, "cured")}>
+      <Button className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
         <FormattedHTMLMessage
-          id="components.display_board.labels.cured"
+          id="components.display_board.labels.discharged"
           description="Label used on display board"
           defaultMessage="治愈<br>{num}"
           values={{
-            num: data.cured
+            num: data.discharged
           }}
         />
       </Button>
-      <Button className={classes.filterButton} onClick={(e) => onClick(e, "death")}>
+      <Button className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
         <FormattedHTMLMessage
-          id="components.display_board.labels.death"
+          id="components.display_board.labels.deceased"
           description="Label used on display board"
           defaultMessage="死亡<br>{num}"
           values={{
-            num: data.death
+            num: data.deceased
           }}
         />
       </Button>

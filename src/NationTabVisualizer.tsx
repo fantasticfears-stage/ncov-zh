@@ -23,9 +23,12 @@ const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
 
 interface INationTabVisualizer extends WithStyles<typeof styles> {
+  params: URLSearchParams;
   state: AsyncState<ExtendedFeatureCollection>;
   dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
   moveOverRegionPanel: (d: ExtendedFeature) => void;
+  filter: FilterType;
+  setFilter: (value: FilterType) => void;
 };
 
 function PluckDataByFilter(data: IRegionData, filter: FilterType) {
@@ -52,7 +55,7 @@ const messages = defineMessages({
   }
 });
 
-const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ dataState, state, moveOverRegionPanel }) => {
+const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ filter, setFilter, dataState, state, moveOverRegionPanel }) => {
   const intl = useIntl();
 
   const projection = d3.geoConicEqualArea();
@@ -81,15 +84,13 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
       // asserts d.length > 0
       return {
         confirmed: d[0].province_confirmedCount,
-        cured: d[0].province_curedCount,
-        death: d[0].province_deadCount,
+        discharged: d[0].province_curedCount,
+        deceased: d[0].province_deadCount,
         suspected: d[0].province_suspectedCount
       };
     }).map(data.filter(d => d.updateTime.toISOString().substr(0, 10) === timestamps[timestamps.length - 1])));
     setByProvince(extracted);
   }, [dataState]);
-
-  const [filter, setFilter] = React.useState<FilterType>("confirmed");
 
   const fn = useCallback((d: ExtendedFeature) => {
     const fillFn = FILL_FN_MAP[filter];
@@ -110,8 +111,8 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
 
   const [data, setData] = React.useState<IRegionData>({
     confirmed: 0,
-    cured: 0,
-    death: 0,
+    discharged: 0,
+    deceased: 0,
     suspected: 0
   });
 
@@ -126,14 +127,14 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
         const {value} = item;
         return {
           confirmed: acc.confirmed + value.confirmed,
-          cured: acc.cured + value.cured,
-          death: acc.death + value.death,
+          discharged: acc.discharged + value.discharged,
+          deceased: acc.deceased + value.deceased,
           suspected: acc.suspected + value.suspected
         }
       }, {
         confirmed: 0,
-        cured: 0,
-        death: 0,
+        discharged: 0,
+        deceased: 0,
         suspected: 0
       });
       setData(total);

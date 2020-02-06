@@ -27,6 +27,8 @@ interface IProvinceTabVisualizer extends WithStyles<typeof styles> {
   dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
   state: AsyncState<ExtendedFeatureCollection>;
   params: URLSearchParams;
+  filter: FilterType;
+  setFilter: (value: FilterType) => void;
 };
 
 
@@ -43,7 +45,7 @@ function TryGetDataFromPrefix(byMapped: d3.Map<IRegionData>, prefix: string) {
   }
   return undefined;
 }
-const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ params, dataState, state }) => {
+const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, dataState, state }) => {
   const intl = useIntl();
 
 
@@ -61,15 +63,13 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
       // asserts d.length > 0
       return {
         confirmed: d[0].city_confirmedCount,
-        cured: d[0].city_curedCount,
-        death: d[0].city_deadCount,
+        discharged: d[0].city_curedCount,
+        deceased: d[0].city_deadCount,
         suspected: d[0].city_suspectedCount
       };
     }).map(dataState.value?.filter(f => f.provinceName.startsWith(province || "")) || []));
     setByCity(extracted);
   }, [dataState, province]);
-
-  const [filter, setFilter] = React.useState<FilterType>("confirmed");
 
   const fn = useCallback((d: ExtendedFeature) => {
     const fillFn = FILL_FN_MAP[filter];
@@ -90,8 +90,8 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
 
   const [data, setData] = React.useState<IRegionData>({
     confirmed: 0,
-    cured: 0,
-    death: 0,
+    discharged: 0,
+    deceased: 0,
     suspected: 0
   });
 
@@ -108,14 +108,14 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
         const {value} = item;
         return {
           confirmed: acc.confirmed + value.confirmed,
-          cured: acc.cured + value.cured,
-          death: acc.death + value.death,
+          discharged: acc.discharged + value.discharged,
+          deceased: acc.deceased + value.deceased,
           suspected: acc.suspected + value.suspected
         }
       }, {
         confirmed: 0,
-        cured: 0,
-        death: 0,
+        discharged: 0,
+        deceased: 0,
         suspected: 0
       });
       setData(total);
