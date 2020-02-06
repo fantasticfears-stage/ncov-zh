@@ -9,7 +9,6 @@ import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
 import NationTabVisualizer from "./NationTabVisualizer";
-import Cities from './Cities';
 import DisplayBoard from './DisplayBoard';
 import { IRegionData, AreaCsvItem, PROVINCE_META_MAP, FilterType } from './models';
 import Container from '@material-ui/core/Container';
@@ -151,7 +150,6 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   if (['confirmed', 'deceased', 'discharged'].indexOf(routeFilter) !== -1) {
     defaultFilter = routeFilter as FilterType;
   }
-  console.log(routeFilter, defaultFilter);
   const [filter, setFilter] = React.useState<FilterType>(defaultFilter);
   useEffect(() => {
     if (params.get('filter') != filter) {

@@ -5,7 +5,6 @@ import { useTitle, useEffectOnce, useAsync, useUpdateEffect } from "react-use";
 import * as d3 from "d3";
 import { ExtendedFeature, ExtendedFeatureCollection, ValueFn, Area } from 'd3';
 import { GeoJsonProperties } from 'geojson';
-import Cities from './Cities';
 import { AsyncState } from 'react-use/lib/useAsync';
 import { AreaCsvItem, IRegionData } from './models';
 import { stringify } from 'querystring';
@@ -34,6 +33,7 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
     const p = u.enter()
       .append('path')
       .attr('d', geoGenerator)
+      .attr("class", "region-item")
       .attr('stroke-width', 1)
       .attr('stroke', "#ffffff")
       .attr('fill', fillFn);

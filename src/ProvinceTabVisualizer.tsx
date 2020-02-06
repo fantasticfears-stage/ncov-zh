@@ -18,7 +18,6 @@ import Typography from '@material-ui/core/Typography';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
-import Cities from './Cities';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -125,7 +124,16 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
 
   const [pinned, setPinned] = React.useState<boolean>(false);
 
-  const onMouseOver = React.useCallback((d: ExtendedFeature) => {
+  const onMouseOver = React.useCallback(function (this: SVGPathElement, d: ExtendedFeature) {
+    d3.selectAll(".region-item")
+      .transition()
+      .duration(200)
+      .style("opacity", 0.5);
+    d3.select<SVGPathElement, ExtendedFeature>(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 1)
+      .style("stroke", "black");
     if (pinned) { return; }
     const name = d?.properties?.name;
     if (name) {

@@ -144,7 +144,16 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
 
   const [pinned, setPinned] = React.useState<boolean>(false);
 
-  const onMouseOver = React.useCallback((d: ExtendedFeature) => {
+  const onMouseOver = React.useCallback(function (this: SVGPathElement, d: ExtendedFeature) {
+    d3.selectAll(".region-item")
+      .transition()
+      .duration(200)
+      .style("opacity", 0.5);
+    d3.select<SVGPathElement, ExtendedFeature>(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 1)
+      .style("stroke", "black");
     if (pinned) { return; }
     const name = d?.properties?.name;
     if (name) {
