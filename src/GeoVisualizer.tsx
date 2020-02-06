@@ -11,7 +11,7 @@ import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature 
 import NationTabVisualizer from "./NationTabVisualizer";
 import Cities from './Cities';
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem } from './models';
+import { IRegionData, AreaCsvItem, PROVINCE_META_MAP } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -53,43 +53,6 @@ const messages = defineMessages({
     }
   }
 });
-
-const GEO_MAP: Record<string, string> = {
-  '安徽': 'an_hui_geo',
-  '澳门': 'ao_men_geo',
-  '北京': 'bei_jing_geo',
-  '重庆': 'chong_qing_geo',
-  '福建': 'fu_jian_geo',
-  '甘肃': 'gan_su_geo',
-  '广东': 'guang_dong_geo',
-  '广西': 'guang_xi_geo',
-  '贵州': 'gui_zhou_geo',
-  '海南': 'hai_nan_geo',
-  '河北': 'he_bei_geo',
-  '河南': 'he_nan_geo',
-  '黑龙江': 'hei_long_jiang_geo',
-  '湖北': 'hu_bei_geo',
-  '湖南': 'hu_nan_geo',
-  '吉林': 'ji_lin_geo',
-  '江苏': 'jiang_su_geo',
-  '江西': 'jiang_xi_geo',
-  '辽宁': 'liao_ning_geo',
-  '内蒙古': 'nei_meng_gu_geo',
-  '宁夏': 'ning_xia_geo',
-  '青海': 'qing_hai_geo',
-  '山东': 'shan_dong_geo',
-  '山西': 'shan_xi_1_geo',
-  '陕西': 'shan_xi_3_geo',
-  '上海': 'shang_hai_geo',
-  '四川': 'si_chuan_geo',
-  '台湾': 'tai_wan_geo',
-  '天津': 'tian_jin_geo',
-  '西藏': 'xi_zang_geo',
-  '香港': 'xiang_gang_geo',
-  '新疆': 'xin_jiang_geo',
-  '云南': 'yun_nan_geo',
-  '浙江': 'zhe_jiang_geo'
-}
 
 function TabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -164,9 +127,9 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const [value, setValue] = React.useState<'nation-tab' | 'region-tab'>(region === null ? 'nation-tab' : 'region-tab');
 
   const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
-    return region === null ?
+    return region === null || Object.keys(PROVINCE_META_MAP).indexOf(region) === -1 ?
       new Promise<ExtendedFeatureCollection>((resolve, reject) => { reject(); }) :
-      d3.json(`data/province/${GEO_MAP[region]}.json`);
+      d3.json(`data/province/${PROVINCE_META_MAP[region].featureFilename}`);
   }, [region]);
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
@@ -211,18 +174,13 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         state={state}
         dataState={dataState}
         moveOverRegionPanel={moveOverRegionPanel}
-        geoGenerator={geoGenerator}
       />
     </TabPanel>
     <TabPanel value={value} index="region-tab">
       <ProvinceTabVisualizer
-        name={city ? `${province} / ${city}` : province || intl.formatMessage(messages.filters.nation)}
-        data={data}
+        params={params}
+        dataState={dataState}
         state={stateProvince}
-        geoGenerator={geoGenerator}
-        features={stateProvince?.value?.features!}
-        setCity={setCity}
-        setProvince={setProvince}
       />
     </TabPanel>
   </div>;

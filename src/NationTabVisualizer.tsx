@@ -8,7 +8,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -22,29 +22,9 @@ import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
 
-const FILL_FN_MAP: Record<string, d3.ScalePower<number, string>> = {
-  "cured": d3.scalePow()
-    .interpolate(() => d3.interpolateGreens)
-    .exponent(0.3)
-    .domain([0, 100]),
-  "death": d3.scalePow()
-    .interpolate(() => d3.interpolateGreys)
-    .exponent(0.2)
-    .domain([0, 1000]),
-  "confirmed": d3.scalePow()
-    .interpolate(() => d3.interpolateOranges)
-    .exponent(0.3)
-    .domain([0, 1500]),
-  "suspected": d3.scalePow()
-    .interpolate(() => d3.interpolateInferno)
-    .exponent(0.3)
-    .domain([0, 1.5])
-};
-
 interface INationTabVisualizer extends WithStyles<typeof styles> {
   state: AsyncState<ExtendedFeatureCollection>;
   dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
-  geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   moveOverRegionPanel: (d: ExtendedFeature) => void;
 };
 
@@ -72,8 +52,19 @@ const messages = defineMessages({
   }
 });
 
-const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ dataState, state, geoGenerator, moveOverRegionPanel }) => {
+const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ dataState, state, moveOverRegionPanel }) => {
   const intl = useIntl();
+
+  const projection = d3.geoConicEqualArea();
+  projection
+    .parallels([15, 65])
+    .rotate([-110, 0])
+    .scale(800)
+    .center([10.1, 140.6]);
+
+    // geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
+  const geoGenerator = d3.geoPath()
+    .projection(projection);
 
   const [province, setProvince] = React.useState<string | null>(null);
   const name = province || intl.formatMessage(messages.filters.nation);
@@ -160,7 +151,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
     if (name) {
       setProvince(name);
     }
-    // moveOverRegionPanel(d);
+    moveOverRegionPanel(d);
   }
 
   const onMouseOut = React.useCallback((d: ExtendedFeature) => {
@@ -181,7 +172,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
         <DisplayBoard onClick={handleFilterClicked} name={name} data={data} />
       </Grid>
       <Grid item md={8} xs={12}>
-        <svg width={1000} height={1000} className="container">
+        <svg width={700} height={600} className="container">
           {state.loading && dataState.loading ? "loading" : <GraphRenderer
             geoGenerator={geoGenerator}
             features={state.value?.features!}
@@ -190,7 +181,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
         </svg>
       </Grid>
     </Grid>
-  </Container>
+  </Container>;
 }
 const NationTabVisualizer = withStyles(styles)(_NationTabVisualizer);
 export default NationTabVisualizer;
