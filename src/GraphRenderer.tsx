@@ -4,6 +4,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync, useUpdateEffect } from "react-use";
 import * as d3 from "d3";
 import { ExtendedFeature, ExtendedFeatureCollection, ValueFn, Area } from 'd3';
+import { GeoJsonProperties } from 'geojson';
 import Cities from './Cities';
 import { AsyncState } from 'react-use/lib/useAsync';
 import { AreaCsvItem, IRegionData } from './models';
@@ -13,15 +14,14 @@ interface IGraphRendererProps<FeatureType extends ExtendedFeature = ExtendedFeat
   features: FeatureType[];
   fillFn: (d: d3.ExtendedFeature) => string;
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
-  setProvince: React.Dispatch<React.SetStateAction<string | null>>;
-  moveOverRegionPanel: (d: ExtendedFeature) => void; 
+  eventHandlers: Array<[string, (feature: ExtendedFeature) => void]>;
 };
 
 
 const messages = defineMessages({
 });
 
-const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, fillFn, geoGenerator, setProvince, moveOverRegionPanel}) => {
+const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, fillFn, geoGenerator, eventHandlers}) => {
   const ref = useRef<SVGGElement>(null);
 
   const renderGraph = () => {
@@ -31,34 +31,21 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
       .selectAll('path')
       .data(features);
   
-    u.enter()
+    const p = u.enter()
       .append('path')
       .attr('d', geoGenerator)
       .attr('stroke-width', 1)
       .attr('stroke', "#ffffff")
-      .attr('fill', fillFn)
-      .on("mouseover", onMouseOver)
-      .on("click", onMouseClick)
-      .on("mouseout", onMouseOut);
+      .attr('fill', fillFn);
     
-      u.exit().remove();
+    
+    eventHandlers.forEach(([typenames, listener]) => {
+      p.on(typenames, listener);
+    });
+
+    u.exit().remove();
   };
-  useEffect(renderGraph, [fillFn]);
-
-  function onMouseOver(d: ExtendedFeature) {
-    const name = d?.properties?.name;
-    if (name) {
-      setProvince(name);
-    }
-  }
-
-  function onMouseClick(d: ExtendedFeature) {
-    moveOverRegionPanel(d);
-  }
-
-  function onMouseOut(d: ExtendedFeature) {
-    setProvince(null);
-  }
+  useEffect(renderGraph, [fillFn, eventHandlers]);
 
   return <g ref={ref}></g>
 }

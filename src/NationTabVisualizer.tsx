@@ -143,6 +143,38 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
 
   }, [province, byProvince]);
 
+  const [pinned, setPinned] = React.useState<boolean>(false);
+
+  const onMouseOver = React.useCallback((d: ExtendedFeature) => {
+    if (pinned) { return; }
+    const name = d?.properties?.name;
+    if (name) {
+      setProvince(name);
+    }
+  }, [pinned]);
+
+  function onMouseClick(d: ExtendedFeature) {
+    setPinned(true);
+
+    const name = d?.properties?.name;
+    if (name) {
+      setProvince(name);
+    }
+    // moveOverRegionPanel(d);
+  }
+
+  const onMouseOut = React.useCallback((d: ExtendedFeature) => {
+    if (pinned) { return; }
+
+    setProvince(null);
+  }, [pinned]);
+
+  const eventHandlers: Array<[string, (feature: ExtendedFeature) => void]> = [
+    ["mouseover", onMouseOver],
+    ["click", onMouseClick],
+    ["mouseout", onMouseOut]
+  ];
+
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
@@ -151,11 +183,10 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ d
       <Grid item md={8} xs={12}>
         <svg width={1000} height={1000} className="container">
           {state.loading && dataState.loading ? "loading" : <GraphRenderer
-            moveOverRegionPanel={moveOverRegionPanel}
             geoGenerator={geoGenerator}
             features={state.value?.features!}
             fillFn={fn}
-            setProvince={setProvince} />}
+            eventHandlers={eventHandlers} />}
         </svg>
       </Grid>
     </Grid>
