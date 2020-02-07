@@ -1,3 +1,11 @@
+language: node_js
+node_js:
+  - "stable"
+cache:
+  directories:
+    - node_modules
+script:
+  - npm run build
 deploy:
   provider: pages
   skip_cleanup: true
@@ -5,5 +13,6 @@ deploy:
   target_branch: gh-pages
   keep_history: false
   fqdn: ncov-zh.dvis.xyz
+  local_dir: build
   on:
     branch: master
