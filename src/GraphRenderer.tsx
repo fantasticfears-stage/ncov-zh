@@ -26,11 +26,14 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
   const renderGraph = () => {
     d3.selectAll("g > *").remove(); // TODO: seems we have to remove the nodes before repainting
 
+    if (!ref.current) { return; }
+    
     const u = d3.select(ref.current)
       .selectAll('path')
       .data(features);
     
-    if (!u) { return; }
+    // u.enter is not available, I'm not sure about the type about u at that time.
+    if (!u || !u.enter) { return; }
   
     const p = u.enter()
       .append('path')

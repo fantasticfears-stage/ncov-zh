@@ -71,11 +71,11 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const intl = useIntl();
 
   const state = useAsync<ExtendedFeatureCollection>(async () => {
-    return d3.json("data/china.json");
+    return d3.json("/data/china.json");
   });
 
   const dataState = useAsync<d3.DSVParsedArray<AreaCsvItem>>(async () => {
-    return d3.csv("data/DXYArea.csv", (csv) => {
+    return d3.csv("/data/DXYArea.csv", (csv) => {
       if (csv.cityName === undefined || csv.provinceName === undefined) {
         return null;
       }
