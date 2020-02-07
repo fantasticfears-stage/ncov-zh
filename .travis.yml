@@ -1,0 +1,9 @@
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  target_branch: gh-pages
+  keep_history: false
+  fqdn: ncov-zh.dvis.xyz
+  on:
+    branch: master
