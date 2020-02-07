@@ -113,7 +113,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
     return region === null || Object.keys(PROVINCE_META_MAP).indexOf(region) === -1 ?
       new Promise<ExtendedFeatureCollection>((resolve, reject) => { reject(); }) :
-      d3.json(`data/province/${PROVINCE_META_MAP[region].featureFilename}`);
+      d3.json(`/data/province/${PROVINCE_META_MAP[region].featureFilename}`);
   }, [region]);
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
