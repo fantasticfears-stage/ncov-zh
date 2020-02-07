@@ -17,7 +17,7 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
-import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
+import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature, Area } from 'd3';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -78,21 +78,13 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
 
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   useEffect(() => {
-    const data: AreaCsvItem[] = dataState.value || [];
-    const ts = data.map(d => d.updateTime.toISOString().substr(0, 10));
-    const timestampSet = new Set<string>(ts);
-    const timestamps = Array.from(timestampSet).sort();
-    
-    const extracted = (d3.nest<AreaCsvItem, IRegionData>().key(d => d.provinceName).rollup(d => {
-      // asserts d.length > 0
-      return {
-        confirmed: d[0].province_confirmedCount,
-        discharged: d[0].province_curedCount,
-        deceased: d[0].province_deadCount,
-        suspected: d[0].province_suspectedCount
-      };
-    }).map(data.filter(d => d.updateTime.toISOString().substr(0, 10) === timestamps[timestamps.length - 1])));
-    setByProvince(extracted);
+    const data = dataState?.value;
+    if (!data) { return; }
+    const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
+
+    const extracted = byDate["2020-02-06"];
+    const byProvince = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);
+    setByProvince(byProvince);
   }, [dataState]);
 
   const fn = useCallback((d: ExtendedFeature) => {

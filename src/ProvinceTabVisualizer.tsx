@@ -23,7 +23,6 @@ const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
 
 interface IProvinceTabVisualizer extends WithStyles<typeof styles> {
-  dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
   state: AsyncState<ExtendedFeatureCollection>;
   params: URLSearchParams;
   filter: FilterType;
@@ -54,7 +53,7 @@ const messages = defineMessages({
   },
 });
 
-const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, dataState, state }) => {
+const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, state }) => {
   const intl = useIntl();
 
   const geoGenerator = d3.geoPath();
@@ -67,17 +66,36 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   const [byCity, setByCity] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   const name = city === null ? province || "" : `${province} / ${city}`;
   useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
-  useEffect(() => {
-    const extracted = (d3.nest<AreaCsvItem, IRegionData>().key(d => d.cityName).rollup(d => {
-      // asserts d.length > 0
-      return {
-        confirmed: d[0].city_confirmedCount,
-        discharged: d[0].city_curedCount,
-        deceased: d[0].city_deadCount,
-        suspected: d[0].city_suspectedCount
+
+  const dataState = useAsync<d3.DSVParsedArray<AreaCsvItem>>(async () => {
+    if (!province) { return new Promise(resolve => {  }); }
+
+    return d3.csv(`/data/provinces/${PROVINCE_META_MAP[province].filenamePrefix}.csv`, (d) => {
+      // drop missing item
+      if (!d.name || !d.confirmed || !d.discharged || !d.deceased || !d.suspected || !d.updatedAtDate) {
+        return null;
+      }
+      const item: AreaCsvItem = {
+        name: d.name,
+        confirmed: parseInt(d.confirmed),
+        discharged: parseInt(d.discharged),
+        deceased: parseInt(d.deceased),
+        suspected: parseInt(d.suspected),
+        updatedAtDate: d.updatedAtDate
       };
-    }).map(dataState.value?.filter(f => f.provinceName.startsWith(province || "")) || []));
-    setByCity(extracted);
+      return item;
+    });
+  });
+
+  useEffect(() => {
+    const data = dataState?.value;
+    if (!data) { return; }
+    const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
+
+    const extracted = byDate["2020-02-06"];
+    const byCity = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);
+    setByCity(byCity);
+    console.log(byCity);
   }, [dataState, province]);
 
   const fn = useCallback((d: ExtendedFeature) => {
@@ -85,12 +103,12 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
 
     const provinceName = d.properties?.name as string;
     let num = 0;
-    const data = TryGetDataFromPrefix(byProvince, provinceName);
+    const data = TryGetDataFromPrefix(byCity, provinceName);
     if (data) {
       num = PluckDataByFilter(data, filter);
     }
     return fillFn ? fillFn(num) : '#eeeeee';
-  }, [byProvince, filter]);
+  }, [byCity, filter]);
 
   const handleFilterClicked = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => {
     e.preventDefault();

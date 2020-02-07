@@ -10,7 +10,7 @@ import * as d3 from "d3";
 import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
 import NationTabVisualizer from "./NationTabVisualizer";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, PROVINCE_META_MAP, FilterType } from './models';
+import { IRegionData, AreaCsvItem, PROVINCE_META_MAP, FilterType, AreaCsvLine } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -83,22 +83,18 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   });
 
   const dataState = useAsync<d3.DSVParsedArray<AreaCsvItem>>(async () => {
-    return d3.csv("/data/DXYArea.csv", (csv) => {
-      if (csv.cityName === undefined || csv.provinceName === undefined) {
+    return d3.csv("/data/provinces.csv", (d) => {
+      // drop missing item
+      if (!d.name || !d.confirmed || !d.discharged || !d.deceased || !d.suspected || !d.updatedAtDate) {
         return null;
       }
-      const item = {
-        cityName: csv.cityName,
-        city_confirmedCount: parseInt(csv.city_confirmedCount || "0"),
-        city_curedCount: parseInt(csv.city_curedCount || "0"),
-        city_deadCount: parseInt(csv.city_deadCount || "0"),
-        city_suspectedCount: parseInt(csv.city_suspectedCount || "0"),
-        provinceName: csv.provinceName,
-        province_confirmedCount: parseInt(csv.province_confirmedCount || "0"),
-        province_curedCount: parseInt(csv.province_curedCount || "0"),
-        province_deadCount: parseInt(csv.province_deadCount || "0"),
-        province_suspectedCount: parseInt(csv.province_suspectedCount || "0"),
-        updateTime: csv.updateTime ? new Date(Date.parse(csv.updateTime)) : new Date()
+      const item: AreaCsvItem = {
+        name: d.name,
+        confirmed: parseInt(d.confirmed),
+        discharged: parseInt(d.discharged),
+        deceased: parseInt(d.deceased),
+        suspected: parseInt(d.suspected),
+        updatedAtDate: d.updatedAtDate
       };
       return item;
     });
@@ -117,7 +113,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
     return region === null || Object.keys(PROVINCE_META_MAP).indexOf(region) === -1 ?
       new Promise<ExtendedFeatureCollection>((resolve, reject) => { reject(); }) :
-      d3.json(`/data/province/${PROVINCE_META_MAP[region].featureFilename}`);
+      d3.json(`/data/provinces/${PROVINCE_META_MAP[region].filenamePrefix}_geo.json`);
   }, [region]);
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
@@ -197,7 +193,6 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     <TabPanel value={value} index="region-tab">
       <ProvinceTabVisualizer
         params={params}
-        dataState={dataState}
         state={stateProvince}
         filter={filter}
         setFilter={setFilterPushingHistory}

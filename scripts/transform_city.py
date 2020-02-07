@@ -72,7 +72,7 @@ def transform_city():
         })
     name = reduce(lambda res, x: res.replace(x, ''), STRIP_KEY_PARTS, name)
 
-    cities.to_csv(os.path.join(OUTPUT_PATH, 'province', f'{PROVINCE_NAMING_MAP[name]}.csv'), index=False)
+    cities.to_csv(os.path.join(OUTPUT_PATH, 'provinces', f'{PROVINCE_NAMING_MAP[name]}.csv'), index=False)
 
 
 # %%

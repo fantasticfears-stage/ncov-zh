@@ -3,7 +3,7 @@ import urllib.request
 
 OUTPUT_PATH = "public/data"
 AREA_FILENAME = 'DXYArea.csv'
-PROVINCE_FILENAME = 'province.csv'
+PROVINCE_FILENAME = 'provinces.csv'
 
 
 def download_github():
