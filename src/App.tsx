@@ -7,6 +7,7 @@ import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import createMuiTheme from "@material-ui/core/styles/createMuiTheme";
 import { palette, typography } from "./theme";
+import About from './About';
 
 const App = () => {
   let locale = "en"; // default is en by react-intl. this trick should work for a while if translation is ever needed
@@ -27,6 +28,7 @@ const App = () => {
       <Router>
         <GeoVisualizer path="/" />
         <GeoVisualizer path="/region" />
+        <GeoVisualizer path="/about" />
       </Router>
     </ThemeProvider>
 

@@ -21,6 +21,7 @@ import Box from '@material-ui/core/Box';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import useTheme from '@material-ui/core/styles/useTheme';
 import ProvinceTabVisualizer from './ProvinceTabVisualizer';
+import About from "./About";
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -28,6 +29,8 @@ const styles = ({ spacing, transitions }: Theme) => createStyles({
 interface IGeoVisualizerRoutes {
 
 }
+
+type TabType = 'nation-tab' | 'region-tab' | 'about-tab'; 
 
 interface IGeoVisualizerProps extends RouteComponentProps<IGeoVisualizerRoutes>, WithStyles<typeof styles> {
 
@@ -43,6 +46,11 @@ const messages = defineMessages({
     id: "geovisualizer.nation",
     description: "default (nation) filter for region",
     defaultMessage: "全国"
+  },
+  about: {
+    id: "geovisualizer.about",
+    description: "about tab",
+    defaultMessage: "关于"
   }
 });
 
@@ -96,19 +104,15 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     });
   });
 
-  const projection = d3.geoConicEqualArea();
-  projection
-    .rotate([-70, 20])
-    .scale(800)
-    .center([60.1, 125.6]);
-  const geoGenerator = d3.geoPath()
-    .projection(projection);
-
-  const [province, setProvince] = React.useState<string | null>(null);
   const params = new URLSearchParams(location?.search);
   const [region, setRegion] = React.useState<string | null>(params.get('province'));
-  const [city, setCity] = React.useState<string | null>(null);
-  const [value, setValue] = React.useState<'nation-tab' | 'region-tab'>(region === null ? 'nation-tab' : 'region-tab');
+  let defaultValue: TabType = "nation-tab";
+  if (path?.startsWith("/about")) {
+    defaultValue = "about-tab";
+  } else if (region !== null) {
+    defaultValue = 'region-tab';
+  }
+  const [value, setValue] = React.useState<TabType>(defaultValue);
 
   const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
     return region === null || Object.keys(PROVINCE_META_MAP).indexOf(region) === -1 ?
@@ -161,7 +165,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
           label={intl.formatMessage(messages.nation)}
           onClick={() => { 
             params.delete('province');
-            path?.startsWith("/region") && navigate(`..?${params}`) 
+            navigate(`/?${params}`);
           }}
           {...a11yProps('nation-tab')}
         />
@@ -169,8 +173,14 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
           value="region-tab"
           disabled={!region}
           label={region === null ? intl.formatMessage(messages.region) : region}
-          onClick={() => { path?.startsWith("/region") && navigate("..") }}
+          onClick={() => { navigate(`/region?${params}`) }}
           {...a11yProps('region-tab')}
+        />
+        <Tab
+          value="about-tab"
+          label={intl.formatMessage(messages.about)}
+          onClick={() => { navigate("/about") }}
+          {...a11yProps('about-tab')}
         />
       </Tabs>
     </AppBar>
@@ -191,6 +201,10 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         state={stateProvince}
         filter={filter}
         setFilter={setFilterPushingHistory}
+      />
+    </TabPanel>
+    <TabPanel value={value} index="about-tab">
+      <About
       />
     </TabPanel>
   </div>;
