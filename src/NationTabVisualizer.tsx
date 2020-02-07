@@ -29,6 +29,8 @@ interface INationTabVisualizer extends WithStyles<typeof styles> {
   moveOverRegionPanel: (d: ExtendedFeature) => void;
   filter: FilterType;
   setFilter: (value: FilterType) => void;
+  selectedDate: Date;
+  handleDateChange: (date: Date) => void;
 };
 
 function PluckDataByFilter(data: IRegionData, filter: FilterType) {
@@ -59,7 +61,7 @@ const messages = defineMessages({
   }
 });
 
-const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ filter, setFilter, dataState, state, moveOverRegionPanel }) => {
+const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ params, selectedDate, handleDateChange, filter, setFilter, dataState, state, moveOverRegionPanel }) => {
   const intl = useIntl();
 
   const projection = d3.geoConicEqualArea();
@@ -77,15 +79,23 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
   useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
 
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
+    
   useEffect(() => {
     const data = dataState?.value;
     if (!data) { return; }
     const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
 
-    const extracted = byDate["2020-02-06"];
+    let chosenDate = selectedDate.toISOString().substr(0, 10);
+    if (!byDate[chosenDate]) {
+      chosenDate = Object.keys(byDate)[0];
+      handleDateChange(new Date(chosenDate));
+    } else {
+      console.log("error date");
+    }
+    const extracted = byDate[chosenDate];
     const byProvince = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);
     setByProvince(byProvince);
-  }, [dataState]);
+  }, [dataState, selectedDate]);
 
   const fn = useCallback((d: ExtendedFeature) => {
     const fillFn = FILL_FN_MAP[filter];
@@ -181,7 +191,14 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
-        <DisplayBoard filter={filter} onClick={handleFilterClicked} name={name} data={data} />
+        <DisplayBoard
+          filter={filter}
+          onClick={handleFilterClicked}
+          name={name}
+          data={data}
+          selectedDate={selectedDate}
+          handleDateChange={handleDateChange}
+        />
       </Grid>
       <Grid item md={8} xs={12}>
         <svg width={700} height={600} className="container">

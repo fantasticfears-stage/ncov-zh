@@ -27,6 +27,8 @@ interface IProvinceTabVisualizer extends WithStyles<typeof styles> {
   params: URLSearchParams;
   filter: FilterType;
   setFilter: (value: FilterType) => void;
+  selectedDate: Date;
+  handleDateChange: (date: Date) => void;
 };
 
 
@@ -53,7 +55,7 @@ const messages = defineMessages({
   },
 });
 
-const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, state }) => {
+const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, state, selectedDate, handleDateChange }) => {
   const intl = useIntl();
 
   const geoGenerator = d3.geoPath();
@@ -92,11 +94,17 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     if (!data) { return; }
     const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
 
-    const extracted = byDate["2020-02-06"];
+    let chosenDate = selectedDate.toISOString().substr(0, 10);
+    if (!byDate[chosenDate]) {
+      chosenDate = Object.keys(byDate)[0];
+      handleDateChange(new Date(chosenDate));
+    } else {
+      console.log("error date");
+    }
+    const extracted = byDate[chosenDate];
     const byCity = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);
     setByCity(byCity);
-    console.log(byCity);
-  }, [dataState, province]);
+  }, [dataState, selectedDate]);
 
   const fn = useCallback((d: ExtendedFeature) => {
     const fillFn = FILL_FN_MAP[filter];
@@ -190,11 +198,18 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     ["click", onMouseClick],
     ["mouseout", onMouseOut]
   ];
-
+  
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
-        <DisplayBoard filter={filter} onClick={handleFilterClicked} name={name} data={data} />
+        <DisplayBoard
+          filter={filter}
+          onClick={handleFilterClicked}
+          name={name}
+          data={data}
+          selectedDate={selectedDate}
+          handleDateChange={handleDateChange}
+        />
       </Grid>
       <Grid item md={8} xs={12}>
         <svg width={700} height={600} className="container">

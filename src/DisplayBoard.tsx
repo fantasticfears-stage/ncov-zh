@@ -15,6 +15,9 @@ import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Button from '@material-ui/core/Button';
 import Typograph from '@material-ui/core/Typography';
+import { DatePicker } from "@material-ui/pickers/DatePicker";
+import moment from 'moment';
+
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
   filterButton: {
@@ -27,12 +30,25 @@ interface IDisplayBoardProps extends WithStyles<typeof styles> {
   data: IRegionData;
   filter: FilterType;
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => void;
+  selectedDate: Date;
+  handleDateChange: (date: Date) => void;
 };
 
 const messages = defineMessages({
+  date: {
+    id: "display_board.date",
+    description: "datepick title",
+    defaultMessage: "日期"
+  },
 });
 
-const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, classes, name, data, onClick }) => {
+const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, classes, name, data, onClick, selectedDate, handleDateChange }) => {
+  const intl = useIntl();
+
+  const onDateChange = (date: moment.Moment | null) => {
+    if (!date) { return; }
+    handleDateChange(date.toDate());
+  };
   return <div>
     <Typograph variant="h4">{name}</Typograph>
 
@@ -78,6 +94,14 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
         />
       </Button> */}
     </ToggleButtonGroup>
+    <DatePicker
+      disableToolbar
+      variant="inline"
+      label={intl.formatMessage(messages.date)}
+      value={selectedDate}
+      onChange={onDateChange}
+      animateYearScrolling
+    />
 
   </div>;
 }

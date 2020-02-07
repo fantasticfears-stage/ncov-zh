@@ -153,6 +153,18 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     navigate(`${location?.pathname || "/"}?${params}`);
   };
 
+  const now = new Date();
+  const paramDate = params.get('date');
+  const defaultDate = paramDate !== null ? new Date(paramDate) : now;
+  const [selectedDate, setSelectedDate] = React.useState(defaultDate);
+
+  const handleDateChange = React.useCallback((date: Date) => {
+    setSelectedDate(date);
+    
+    params.set('date', date.toISOString().substr(0, 10));
+    navigate(`${path}?${params}`);
+  }, [params]);
+
   return <div>
     <AppBar position="static">
       <Tabs value={value} onChange={handleChange} centered={matches}>
@@ -188,6 +200,8 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         moveOverRegionPanel={moveOverRegionPanel}
         filter={filter}
         setFilter={setFilterPushingHistory}
+        selectedDate={selectedDate}
+        handleDateChange={handleDateChange}
       />
     </TabPanel>
     <TabPanel value={value} index="region-tab">
@@ -196,6 +210,8 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         state={stateProvince}
         filter={filter}
         setFilter={setFilterPushingHistory}
+        selectedDate={selectedDate}
+        handleDateChange={handleDateChange}
       />
     </TabPanel>
     <TabPanel value={value} index="about-tab">
