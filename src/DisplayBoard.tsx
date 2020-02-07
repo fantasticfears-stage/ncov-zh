@@ -27,13 +27,6 @@ interface IDisplayBoardProps extends WithStyles<typeof styles> {
 };
 
 const messages = defineMessages({
-  labels: {
-    confirmed: {
-      id: "components.display_board.labels.confirmed",
-      description: "Label used on display board",
-      defaultMessage: "确诊 {num}"
-    }
-  }
 });
 
 const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, name, data, onClick }) => {
@@ -65,7 +58,7 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
         <FormattedHTMLMessage
           id="components.display_board.labels.deceased"
           description="Label used on display board"
-          defaultMessage="死亡<br>{num}"
+          defaultMessage="去世<br>{num}"
           values={{
             num: data.deceased
           }}

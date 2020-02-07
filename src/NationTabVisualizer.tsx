@@ -8,7 +8,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -46,12 +46,16 @@ function TryGetDataFromPrefix(byProvince: d3.Map<IRegionData>, prefix: string) {
 }
 
 const messages = defineMessages({
-  filters: {
-    nation: {
-      id: "geovisualizer.filters.nation",
-      description: "default (nation) filter for region",
-      defaultMessage: "全国"
-    }
+  filters: FILTER_MESSAGES,
+  title: {
+    id: "geovisualizer.title",
+    description: "title for geovisualizer",
+    defaultMessage: "{region}地区 - {filter}"
+  },
+  nation: {
+    id: "geovisualizer.nation",
+    description: "default (nation) filter for region",
+    defaultMessage: "全国"
   }
 });
 
@@ -65,12 +69,13 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
     .scale(800)
     .center([10.1, 140.6]);
 
-    // geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   const geoGenerator = d3.geoPath()
     .projection(projection);
 
   const [province, setProvince] = React.useState<string | null>(null);
-  const name = province || intl.formatMessage(messages.filters.nation);
+  const name = province || intl.formatMessage(messages.nation);
+  useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
+
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   useEffect(() => {
     const data: AreaCsvItem[] = dataState.value || [];
@@ -78,8 +83,6 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
     const timestampSet = new Set<string>(ts);
     const timestamps = Array.from(timestampSet).sort();
     
-    // const dates = (dataState.value || []).map<AreaCsvItem>(i => i.updateTime)
-    // const lastDay = 
     const extracted = (d3.nest<AreaCsvItem, IRegionData>().key(d => d.provinceName).rollup(d => {
       // asserts d.length > 0
       return {

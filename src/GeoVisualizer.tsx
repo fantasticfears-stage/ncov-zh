@@ -34,22 +34,15 @@ interface IGeoVisualizerProps extends RouteComponentProps<IGeoVisualizerRoutes>,
 };
 
 const messages = defineMessages({
-  title: {
-    id: "geovisualizer.title",
-    description: "title for geovisualizer",
-    defaultMessage: "{region}地区"
+  region: {
+    id: "geovisualizer.region",
+    description: "filter for region",
+    defaultMessage: "地区"
   },
-  filters: {
-    nation: {
-      id: "geovisualizer.filters.nation",
-      description: "default (nation) filter for region",
-      defaultMessage: "全国"
-    },
-    region: {
-      id: "geovisualizer.filters.region",
-      description: "filter for region",
-      defaultMessage: "地区"
-    }
+  nation: {
+    id: "geovisualizer.nation",
+    description: "default (nation) filter for region",
+    defaultMessage: "全国"
   }
 });
 
@@ -76,8 +69,6 @@ function a11yProps(index: string) {
 }
 const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes, location, path }) => {
   const intl = useIntl();
-  const regionLabel = intl.formatMessage(messages.filters.nation);
-  useTitle(intl.formatMessage(messages.title, { region: regionLabel }));
 
   const state = useAsync<ExtendedFeatureCollection>(async () => {
     return d3.json("data/china.json");
@@ -167,7 +158,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
       <Tabs value={value} onChange={handleChange} centered={matches}>
         <Tab
           value="nation-tab"
-          label={intl.formatMessage(messages.filters.nation)}
+          label={intl.formatMessage(messages.nation)}
           onClick={() => { 
             params.delete('province');
             path?.startsWith("/region") && navigate(`..?${params}`) 
@@ -177,7 +168,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
         <Tab
           value="region-tab"
           disabled={!region}
-          label={region === null ? intl.formatMessage(messages.filters.region) : region}
+          label={region === null ? intl.formatMessage(messages.region) : region}
           onClick={() => { path?.startsWith("/region") && navigate("..") }}
           {...a11yProps('region-tab')}
         />

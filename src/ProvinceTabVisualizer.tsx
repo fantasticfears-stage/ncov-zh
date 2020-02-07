@@ -8,7 +8,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useEffectOnce, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
@@ -44,11 +44,19 @@ function TryGetDataFromPrefix(byMapped: d3.Map<IRegionData>, prefix: string) {
   }
   return undefined;
 }
+
+const messages = defineMessages({
+  filters: FILTER_MESSAGES,
+  title: {
+    id: "geovisualizer.title",
+    description: "title for geovisualizer",
+    defaultMessage: "{region}地区 - {filter}"
+  },
+});
+
 const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, dataState, state }) => {
   const intl = useIntl();
 
-
-    // geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   const geoGenerator = d3.geoPath();
   const [province, setProvince] = React.useState<string | null>(params.get("province"));
   if (province !== null && Object.keys(PROVINCE_META_MAP).indexOf(province) !== -1) {
@@ -57,6 +65,8 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   const [city, setCity] = React.useState<string | null>(null);
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   const [byCity, setByCity] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
+  const name = city === null ? province || "" : `${province} / ${city}`;
+  useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
   useEffect(() => {
     const extracted = (d3.nest<AreaCsvItem, IRegionData>().key(d => d.cityName).rollup(d => {
       // asserts d.length > 0
@@ -166,7 +176,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
-        <DisplayBoard onClick={handleFilterClicked} name={city === null ? province || "" : `${province} / ${city}`} data={data} />
+        <DisplayBoard onClick={handleFilterClicked} name={name} data={data} />
       </Grid>
       <Grid item md={8} xs={12}>
         <svg width={700} height={600} className="container">

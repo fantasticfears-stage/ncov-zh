@@ -29,6 +29,8 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
     const u = d3.select(ref.current)
       .selectAll('path')
       .data(features);
+    
+    if (!u) { return; }
   
     const p = u.enter()
       .append('path')
