@@ -189,7 +189,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ f
   return <Container>
     <Grid container>
       <Grid item md={4} xs={12}>
-        <DisplayBoard onClick={handleFilterClicked} name={name} data={data} />
+        <DisplayBoard filter={filter} onClick={handleFilterClicked} name={name} data={data} />
       </Grid>
       <Grid item md={8} xs={12}>
         <svg width={700} height={600} className="container">

@@ -11,6 +11,8 @@ import { Selection, ExtendedFeature } from 'd3';
 import { IRegionData, FilterType } from "./models";
 import Paper from '@material-ui/core/Paper';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Button from '@material-ui/core/Button';
 import Typograph from '@material-ui/core/Typography';
 
@@ -23,18 +25,19 @@ const styles = ({ spacing, transitions }: Theme) => createStyles({
 interface IDisplayBoardProps extends WithStyles<typeof styles> {
   name: string;
   data: IRegionData;
+  filter: FilterType;
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => void;
 };
 
 const messages = defineMessages({
 });
 
-const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, name, data, onClick }) => {
+const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, classes, name, data, onClick }) => {
   return <div>
     <Typograph variant="h4">{name}</Typograph>
 
-    <ButtonGroup size="large" variant="text" color="primary" aria-label="text primary button group">
-      <Button className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
+    <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
+      <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
         <FormattedHTMLMessage
           id="components.display_board.labels.confirmed"
           description="Label used on display board"
@@ -43,8 +46,8 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
             num: data.confirmed
           }}
         />
-      </Button>
-      <Button className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
+      </ToggleButton>
+      <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
         <FormattedHTMLMessage
           id="components.display_board.labels.discharged"
           description="Label used on display board"
@@ -53,8 +56,8 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
             num: data.discharged
           }}
         />
-      </Button>
-      <Button className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
+      </ToggleButton>
+      <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
         <FormattedHTMLMessage
           id="components.display_board.labels.deceased"
           description="Label used on display board"
@@ -63,7 +66,7 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
             num: data.deceased
           }}
         />
-      </Button>
+      </ToggleButton>
       {/* <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
         <FormattedHTMLMessage
           id="components.display_board.labels.suspected"
@@ -74,7 +77,7 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ classes, n
           }}
         />
       </Button> */}
-    </ButtonGroup>
+    </ToggleButtonGroup>
 
   </div>;
 }
