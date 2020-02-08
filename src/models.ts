@@ -7,6 +7,13 @@ export interface IRegionData {
   suspected: number;
 }
 
+export const EMPTY_REGION_DATA: IRegionData = {
+  confirmed: 0,
+  discharged: 0,
+  deceased: 0,
+  suspected: 0
+}
+
 export interface AreaCsvLine {
   name: string;
   confirmed: number;
@@ -50,6 +57,12 @@ export interface IProvinceMeta {
   filenamePrefix: string;
   projection: d3.GeoConicProjection;
 }
+
+export interface IDimension {
+  width: number;
+  height: number;
+}
+
 
 export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
   '安徽': {

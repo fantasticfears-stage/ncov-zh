@@ -7,12 +7,13 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
+import { useMeasures } from './helpers/useMeasures';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -117,12 +118,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     setFilter(filter);
   };
 
-  const [data, setData] = React.useState<IRegionData>({
-    confirmed: 0,
-    discharged: 0,
-    deceased: 0,
-    suspected: 0
-  });
+  const [data, setData] = React.useState<IRegionData>(EMPTY_REGION_DATA);
 
   React.useEffect(() => {
     if (city) {
@@ -141,12 +137,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
           deceased: acc.deceased + value.deceased,
           suspected: acc.suspected + value.suspected
         }
-      }, {
-        confirmed: 0,
-        discharged: 0,
-        deceased: 0,
-        suspected: 0
-      });
+      }, EMPTY_REGION_DATA);
       setData(total);
     }
 
@@ -192,8 +183,10 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     ["click", onMouseClick],
     ["mouseout", onMouseOut]
   ];
-  
-  return <Container>
+
+  const [containerRef, measureRef, dimension] = useMeasures(geoGenerator, state.value!);
+
+  return <Container ref={containerRef}>
     <Grid container>
       <Grid item md={4} xs={12}>
         <DisplayBoard
@@ -205,8 +198,8 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
           handleDateChange={handleDateChange}
         />
       </Grid>
-      <Grid item md={8} xs={12}>
-        <svg width={700} height={600} className="container">
+      <Grid item md={8} xs={12} ref={measureRef}>
+        <svg width={dimension.width} height={dimension.height} className="container">
           {state.loading && dataState.loading ? "loading" : <GraphRenderer
             geoGenerator={geoGenerator}
             features={state.value?.features!}
