@@ -6,6 +6,8 @@ cache:
     - node_modules
 script:
   - npm run build
+  - mkdir -p build/region && cp build/index.html build/region/index.html
+  - mkdir -p build/about && cp build/index.html build/about/index.html
 deploy:
   provider: pages
   skip_cleanup: true
