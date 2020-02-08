@@ -60,15 +60,17 @@ const messages = defineMessages({
 const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ params, selectedDate, handleDateChange, filter, setFilter, dataState, state, moveOverRegionPanel }) => {
   const intl = useIntl();
 
+  const geoGenerator = d3.geoPath();
+  const [containerRef, measureRef, dimension] = useMeasures(geoGenerator, state.value!);
+
   const projection = d3.geoConicEqualArea();
   projection
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(800)
-    .center([10.1, 140.6]);
+    .scale(dimension.width > 550 ? 800 : 660)
+    .center(dimension.width > 550 ? [10.1, 140.6] : [22, 145]);
 
-  const geoGenerator = d3.geoPath()
-    .projection(projection);
+  geoGenerator.projection(projection);
 
   const [province, setProvince] = React.useState<string | null>(null);
   const name = province || intl.formatMessage(messages.nation);
@@ -174,8 +176,6 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
     ["mouseout", onMouseOut]
   ];
   
-  const [containerRef, measureRef, dimension] = useMeasures(geoGenerator, state.value!);
-
   return <Container ref={containerRef}>
     <Grid container>
       <Grid item md={4} xs={12}>
