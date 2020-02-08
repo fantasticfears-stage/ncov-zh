@@ -1,8 +1,7 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React from 'react';
 import { useIntl, defineMessages, FormattedMessage } from "react-intl";
-import { useTitle, useEffectOnce, useAsync, useUpdateEffect } from "react-use";
+import { useTitle } from "react-use";
 import Container from '@material-ui/core/Container';
-import Paper from '@material-ui/core/Paper';
 
 interface IAboutProps {
 };
@@ -16,7 +15,7 @@ const messages = defineMessages({
   }
 });
 
-const About: React.FunctionComponent<IAboutProps> = ({}) => {
+const About: React.FunctionComponent<IAboutProps> = () => {
   const intl = useIntl();
   useTitle(intl.formatMessage(messages.title));
 

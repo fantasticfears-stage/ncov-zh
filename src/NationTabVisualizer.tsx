@@ -1,23 +1,18 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { WithStyles } from "@material-ui/styles/withStyles";
 import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
-import { RouteComponentProps } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
-import { useTitle, useEffectOnce, useAsync } from "react-use";
+import { useTitle } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
 import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
-import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature, Area } from 'd3';
+import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -95,7 +90,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
     const extracted = byDate[chosenDate];
     const byProvince = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);
     setByProvince(byProvince);
-  }, [dataState, selectedDate]);
+  }, [dataState, selectedDate, handleDateChange]);
 
   const fn = useCallback((d: ExtendedFeature) => {
     const fillFn = FILL_FN_MAP[filter];

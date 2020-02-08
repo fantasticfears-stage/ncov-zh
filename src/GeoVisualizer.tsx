@@ -1,23 +1,19 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { WithStyles } from "@material-ui/styles/withStyles";
 import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { RouteComponentProps, navigate } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
-import { useTitle, useEffectOnce, useAsync } from "react-use";
+import { useAsync } from "react-use";
 import * as d3 from "d3";
-import { ExtendedFeatureCollection, ExtendedGeometryCollection, ExtendedFeature } from 'd3';
+import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 import NationTabVisualizer from "./NationTabVisualizer";
-import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, PROVINCE_META_MAP, FilterType, AreaCsvLine } from './models';
-import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
+import { AreaCsvItem, PROVINCE_META_MAP, FilterType } from './models';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import useTheme from '@material-ui/core/styles/useTheme';
 import ProvinceTabVisualizer from './ProvinceTabVisualizer';
@@ -143,7 +139,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   }
   const [filter, setFilter] = React.useState<FilterType>(defaultFilter);
   useEffect(() => {
-    if (params.get('filter') != filter) {
+    if (params.get('filter') !== filter) {
       params.set('filter', filter);
     }
   }, [filter, params]);
@@ -163,7 +159,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     
     params.set('date', date.toISOString().substr(0, 10));
     navigate(`${path}?${params}`);
-  }, [params]);
+  }, [params, path]);
 
   return <div>
     <AppBar position="static">

@@ -1,13 +1,6 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { RouteComponentProps } from "@reach/router";
-import { useIntl, defineMessages } from "react-intl";
-import { useTitle, useEffectOnce, useAsync, useUpdateEffect } from "react-use";
+import React, { useRef, useEffect } from 'react';
 import * as d3 from "d3";
-import { ExtendedFeature, ExtendedFeatureCollection, ValueFn, Area } from 'd3';
-import { GeoJsonProperties } from 'geojson';
-import { AsyncState } from 'react-use/lib/useAsync';
-import { AreaCsvItem, IRegionData } from './models';
-import { stringify } from 'querystring';
+import { ExtendedFeature } from 'd3';
 
 interface IGraphRendererProps<FeatureType extends ExtendedFeature = ExtendedFeature> {
   features: FeatureType[];
@@ -15,10 +8,6 @@ interface IGraphRendererProps<FeatureType extends ExtendedFeature = ExtendedFeat
   geoGenerator: d3.GeoPath<any, d3.GeoPermissibleObjects>;
   eventHandlers: Array<[string, (feature: ExtendedFeature) => void]>;
 };
-
-
-const messages = defineMessages({
-});
 
 const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, fillFn, geoGenerator, eventHandlers}) => {
   const ref = useRef<SVGGElement>(null);
