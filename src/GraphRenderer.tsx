@@ -31,6 +31,15 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
       .attr('stroke-width', 1)
       .attr('stroke', "#ffffff")
       .attr('fill', fillFn);
+
+    const t = u.enter()
+      .append('text')
+      .attr('transform', d => {
+        return `translate(${geoGenerator.centroid(d)})`;
+      })
+      .style('text-anchor', 'middle')
+      .text(d => d?.properties?.name);
+      t.exit().remove();
     
     
     eventHandlers.forEach(([typenames, listener]) => {
@@ -41,7 +50,7 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
   };
   useEffect(renderGraph, [fillFn, eventHandlers]);
 
-  return <g ref={ref}></g>
+  return <g ref={ref}></g>;
 }
 
 export default GraphRenderer;
