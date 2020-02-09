@@ -2,7 +2,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Source
 
-- china.json / provice/* : from https://github.com/twobin/china-map-geojson
+- china.json / provice/* : http://datav.aliyun.com/tools/atlas/
 
 ## Available Scripts
 

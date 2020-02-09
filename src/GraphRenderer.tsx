@@ -15,7 +15,7 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
   const renderGraph = () => {
     d3.selectAll("g > *").remove(); // TODO: seems we have to remove the nodes before repainting
 
-    if (!ref.current) { return; }
+    if (!ref.current || !features) { return; }
     
     const u = d3.select(ref.current)
       .selectAll('path')
@@ -41,14 +41,13 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
       .text(d => d?.properties?.name);
       t.exit().remove();
     
-    
     eventHandlers.forEach(([typenames, listener]) => {
       p.on(typenames, listener);
     });
 
     u.exit().remove();
   };
-  useEffect(renderGraph, [fillFn, eventHandlers]);
+  useEffect(renderGraph, [features, fillFn, eventHandlers]);
 
   return <g ref={ref}></g>;
 }

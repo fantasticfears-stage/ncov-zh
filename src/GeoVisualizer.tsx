@@ -9,7 +9,7 @@ import { useAsync } from "react-use";
 import * as d3 from "d3";
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 import NationTabVisualizer from "./NationTabVisualizer";
-import { AreaCsvItem, PROVINCE_META_MAP, FilterType } from './models';
+import { AreaCsvItem, PROVINCE_META_MAP, FilterType, STRIP_KEY_PARTS } from './models';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -106,11 +106,13 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   }
   const [value, setValue] = React.useState<TabType>(defaultValue);
 
-  const stateProvince = useAsync<ExtendedFeatureCollection>(async () => {
-    return region === null || Object.keys(PROVINCE_META_MAP).indexOf(region) === -1 ?
+  const stateProvince = useAsync<ExtendedFeatureCollection>(React.useCallback(async () => {
+    const regionKey: string = STRIP_KEY_PARTS.reduce((acc: string, v) => { return acc.replace(v, "") }, region || "");
+
+    return Object.keys(PROVINCE_META_MAP).indexOf(regionKey) === -1 ?
       new Promise<ExtendedFeatureCollection>((resolve, reject) => { reject(); }) :
-      d3.json(`/data/provinces/${PROVINCE_META_MAP[region].filenamePrefix}_geo.json`);
-  }, [region]);
+      d3.json(`/data/provinces/${PROVINCE_META_MAP[regionKey].filenamePrefix}_geo.json`);
+  }, [region]));
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: any) => {
     setValue(newValue);

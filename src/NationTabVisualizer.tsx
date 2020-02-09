@@ -79,7 +79,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
     
   useEffect(() => {
-    const data = dataState?.value;
+    const data = dataState.value;
     if (!data) { return; }
     const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
 
@@ -88,7 +88,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
       chosenDate = Object.keys(byDate)[0];
       handleDateChange(new Date(chosenDate));
     } else {
-      console.log("error date");
+      console.log(`error date ${chosenDate}`);
     }
     const extracted = byDate[chosenDate];
     const byProvince = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);

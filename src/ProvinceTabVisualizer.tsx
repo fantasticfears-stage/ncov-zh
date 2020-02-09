@@ -7,7 +7,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, STRIP_KEY_PARTS } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import GraphRenderer from './GraphRenderer';
@@ -56,8 +56,9 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
 
   const geoGenerator = d3.geoPath();
   const [province] = React.useState<string | null>(params.get("province"));
-  if (province !== null && Object.keys(PROVINCE_META_MAP).indexOf(province) !== -1) {
-    geoGenerator.projection(PROVINCE_META_MAP[province].projection);
+  const provinceKey: string = STRIP_KEY_PARTS.reduce((acc: string, v) => { return acc.replace(v, "") }, province || "");
+  if (Object.keys(PROVINCE_META_MAP).indexOf(provinceKey) !== -1) {
+    geoGenerator.projection(PROVINCE_META_MAP[provinceKey].projection);
   };
   const [city, setCity] = React.useState<string | null>(null);
   const [byCity, setByCity] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
@@ -94,7 +95,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
       chosenDate = Object.keys(byDate)[0];
       handleDateChange(new Date(chosenDate));
     } else {
-      console.log("error date");
+      console.log(`error date ${chosenDate}`);
     }
     const extracted = byDate[chosenDate];
     const byCity = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);
@@ -124,7 +125,6 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     if (city) {
       // TODO: looks more cleansing to do
       const data = TryGetDataFromPrefix(byCity, city.replace('市', ''));
-      console.log(city, byCity, city, data);
       if (data) {
         setData(data);
       }
