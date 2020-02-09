@@ -60,11 +60,11 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
 
     <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
       <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
-        <div>{intl.formatMessage(FILTER_MESSAGES["deceased"])}</div>
+        <div>{intl.formatMessage(FILTER_MESSAGES["confirmed"])}</div>
         <div>{data ? data.confirmed : <Skeleton variant="text"/>}</div>
       </ToggleButton>
       <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
-        <div>{intl.formatMessage(FILTER_MESSAGES["deceased"])}</div>
+        <div>{intl.formatMessage(FILTER_MESSAGES["discharged"])}</div>
         <div>{data ? data.discharged : <Skeleton variant="text"/>}</div>
       </ToggleButton>
       <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>

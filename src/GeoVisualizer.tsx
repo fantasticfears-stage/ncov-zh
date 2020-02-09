@@ -119,18 +119,18 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     setValue(newValue);
   };
 
-  const getRegionUrl = (regionName: string) => {
+  const getRegionUrl = React.useCallback((regionName: string) => {
     params.set('province', regionName);
     const redirectUrl = `region?${params}`;
     return redirectUrl;
-  }
+  }, [params]);
 
-  const moveOverRegionPanel = (d: ExtendedFeature) => {
+  const moveOverRegionPanel = React.useCallback((d: ExtendedFeature) => {
     const regionName = d?.properties?.name as string;
     setRegion(regionName);
     const redirectUrl = getRegionUrl(regionName);
     navigate(redirectUrl);
-  }
+  }, [getRegionUrl]);
 
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
