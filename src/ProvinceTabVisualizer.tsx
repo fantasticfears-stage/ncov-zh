@@ -119,6 +119,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     const extracted = byDate[chosenDate];
     if (!extracted) {
       const newDate = Object.keys(byDate)[0];
+      if (!newDate) { return; }
       console.log(`error date ${chosenDate}, switching to ${newDate}`);
       handleDateChange(new Date(newDate));
       return;

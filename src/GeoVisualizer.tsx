@@ -165,6 +165,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const handleDateChange = React.useCallback((date: Date) => {
     setSelectedDate(date);
 
+    console.log(date);
     params.set('date', date.toISOString().substr(0, 10));
     navigate(`${path}?${params}`);
   }, [params, path]);
