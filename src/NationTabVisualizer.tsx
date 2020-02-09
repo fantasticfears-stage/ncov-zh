@@ -179,6 +179,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   const eventHandlers: Array<[string, (feature: ExtendedFeature) => void]> = [
     ["mouseover", onMouseOver],
     ["click", onMouseClick],
+    ['touchend', onMouseClick],
     ["mouseout", onMouseOut]
   ];
 

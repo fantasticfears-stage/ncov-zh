@@ -28,7 +28,7 @@ const App = () => {
   );
 
   useEffectOnce(() => {
-    moment.locale('zh-cn', {
+    moment.updateLocale('zh-cn', {
       longDateFormat : {
         LT : 'HH:mm',
         LTS : 'HH:mm:ss',
