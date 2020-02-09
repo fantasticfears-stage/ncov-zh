@@ -3,7 +3,7 @@ import { WithStyles } from "@material-ui/styles/withStyles";
 import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
-import { useIntl, defineMessages } from "react-intl";
+import { useIntl, defineMessages, FormattedMessage } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
@@ -16,8 +16,20 @@ import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 import { useMeasures } from './helpers/useMeasures';
 import { stripRegionNameForKey } from './helpers/sanitizers';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Table from '@material-ui/core/Table';
+import TableHead from '@material-ui/core/TableHead';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import { darken } from "@material-ui/core/styles/colorManipulator";
 
-const styles = ({ spacing, transitions }: Theme) => createStyles({
+const styles = ({ spacing, palette }: Theme) => createStyles({
+  container: {},
+  highlightRow: {
+    backgroundColor: darken(palette.background.default, 0.2)
+  }
 });
 
 interface IProvinceTabVisualizer extends WithStyles<typeof styles> {
@@ -61,7 +73,7 @@ function getProvinceMeta(key: string): IProvinceMeta | null {
   return null;
 }
 
-const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, state, selectedDate, handleDateChange }) => {
+const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ classes, filter, setFilter, params, state, selectedDate, handleDateChange }) => {
   const intl = useIntl();
 
   const geoGenerator = d3.geoPath();
@@ -79,7 +91,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
 
   const dataState = useAsync<d3.DSVParsedArray<AreaCsvItem>>(async () => {
-    if (!provinceKey || provinceKey.length === 0) { return new Promise(resolve => {  }); }
+    if (!provinceKey || provinceKey.length === 0) { return new Promise(resolve => { }); }
 
     return d3.csv(`/data/provinces/${provinceMeta.filenamePrefix}.csv`, (d) => {
       // drop missing item
@@ -101,7 +113,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   useEffect(() => {
     const data = dataState?.value;
     if (!data) { return; }
-    const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
+    const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: (h[obj.updatedAtDate] || []).concat(obj) }), {})
 
     let chosenDate = selectedDate.toISOString().substr(0, 10);
     if (!byDate[chosenDate]) {
@@ -117,7 +129,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   const fn = useCallback((d: ExtendedFeature) => {
     const values = byCity.values().map(d => d[filter]);
     const domain = [0, d3.max(values) || 60];
-    
+
     const fillFn = FILL_FN_PROVINCE_MAP[filter]
       .domain(domain);
 
@@ -150,7 +162,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
         return;
       }
       const total = byCity.entries().reduce((acc, item) => {
-        const {value} = item;
+        const { value } = item;
         return {
           confirmed: acc.confirmed + value.confirmed,
           discharged: acc.discharged + value.discharged,
@@ -210,8 +222,8 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
 
   const [containerRef, measureRef, dimension] = useMeasures(geoGenerator, state.value!);
 
-  return <Container ref={containerRef}>
-    <Grid container>
+  return <Container ref={containerRef} className={classes.container}>
+    <Grid container spacing={3}>
       <Grid item md={4} xs={12}>
         <DisplayBoard
           filter={filter}
@@ -222,16 +234,46 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
           handleDateChange={handleDateChange}
         />
       </Grid>
-      <Grid item md={8} xs={12} ref={measureRef}>
-        {state.loading || dataState.loading ? <CircularProgress /> :
-          <svg width={dimension.width} height={dimension.height} className="container">
-            <GraphRenderer
-              geoGenerator={geoGenerator}
-              features={state.value?.features!}
-              fillFn={fn}
-              eventHandlers={eventHandlers} />
-          </svg>}
+      <Grid item md={8} xs={12}>
+        <Paper ref={measureRef}>
+          {state.loading || dataState.loading ? <CircularProgress /> :
+            <svg width={dimension.width} height={dimension.height} className="container">
+              <GraphRenderer
+                geoGenerator={geoGenerator}
+                features={state.value?.features!}
+                fillFn={fn}
+                eventHandlers={eventHandlers} />
+            </svg>}
+        </Paper>
       </Grid>
+      {!(state.loading || dataState.loading) && <Grid item xs={12}>
+        <TableContainer component={Paper}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <FormattedMessage
+                    id="geovisualizer.region"
+                    description="filter region"
+                    defaultMessage="地区"
+                  />
+                </TableCell>
+                <TableCell align="right">{intl.formatMessage(FILTER_MESSAGES.confirmed)}</TableCell>
+                <TableCell align="right">{intl.formatMessage(FILTER_MESSAGES.discharged)}</TableCell>
+                <TableCell align="right">{intl.formatMessage(FILTER_MESSAGES.deceased)}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {byCity.values().map((row, idx) => { return <TableRow key={idx} className={row.name === city ? classes.highlightRow : undefined}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell align="right">{row.confirmed}</TableCell>
+                  <TableCell align="right">{row.discharged}</TableCell>
+                  <TableCell align="right">{row.deceased}</TableCell>
+                </TableRow> })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid>}
     </Grid>
   </Container>;
 }

@@ -8,15 +8,17 @@ import { IRegionData, FilterType, DATE_RANGE, FILTER_MESSAGES } from "./models";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typograph from '@material-ui/core/Typography';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { DatePicker } from "@material-ui/pickers/DatePicker";
 import moment from 'moment';
+import { darken } from "@material-ui/core/styles/colorManipulator";
 
-
-const styles = ({ spacing, transitions }: Theme) => createStyles({
+const styles = ({ spacing, palette }: Theme) => createStyles({
   filterButton: {
     minWidth: spacing(10),
-    color: 'rgba(0,0,0,1)',
+    color: darken(palette.text.primary, 0.2),
     '& > *': {
       display: 'block',
     }
@@ -54,48 +56,49 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
   };
 
   const [START_DATE, END_DATE] = DATE_RANGE;
-  return <div className={classes.root}>
-    <Typograph variant="h4">{name}</Typograph>
+  return <Card>
+    <CardContent className={classes.root}>
+      <Typograph variant="h4">{name}</Typograph>
 
-    <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
-      <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
-        <div>{intl.formatMessage(FILTER_MESSAGES["confirmed"])}</div>
-        <div>{data ? data.confirmed : <Skeleton variant="text"/>}</div>
-      </ToggleButton>
-      <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
-        <div>{intl.formatMessage(FILTER_MESSAGES["discharged"])}</div>
-        <div>{data ? data.discharged : <Skeleton variant="text"/>}</div>
-      </ToggleButton>
-      <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
-        <div>{intl.formatMessage(FILTER_MESSAGES["deceased"])}</div>
-        <div>{data ? data.deceased : <Skeleton variant="text"/>}</div>
-      </ToggleButton>
-      {/* <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
-        <FormattedHTMLMessage
-          id="components.display_board.labels.suspected"
-          description="Label used on display board"
-          defaultMessage="疑似<br>{num}"
-          values={{
-            num: data.suspected
-          }}
-        />
-      </Button> */}
-    </ToggleButtonGroup>
-    <DatePicker
-      disableToolbar
-      minDate={START_DATE}
-      maxDate={END_DATE}
-      // shouldDisableDate={shouldDisableDate}
-      format="MMMD日"
-      variant="inline"
-      label={intl.formatMessage(messages.date)}
-      value={selectedDate}
-      onChange={onDateChange}
-      inputVariant="outlined"
-      animateYearScrolling
-    />
-
-  </div>;
+      <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
+        <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
+          <div>{intl.formatMessage(FILTER_MESSAGES["confirmed"])}</div>
+          <div>{data ? data.confirmed : <Skeleton variant="text"/>}</div>
+        </ToggleButton>
+        <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
+          <div>{intl.formatMessage(FILTER_MESSAGES["discharged"])}</div>
+          <div>{data ? data.discharged : <Skeleton variant="text"/>}</div>
+        </ToggleButton>
+        <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
+          <div>{intl.formatMessage(FILTER_MESSAGES["deceased"])}</div>
+          <div>{data ? data.deceased : <Skeleton variant="text"/>}</div>
+        </ToggleButton>
+        {/* <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
+          <FormattedHTMLMessage
+            id="components.display_board.labels.suspected"
+            description="Label used on display board"
+            defaultMessage="疑似<br>{num}"
+            values={{
+              num: data.suspected
+            }}
+          />
+        </Button> */}
+      </ToggleButtonGroup>
+      <DatePicker
+        disableToolbar
+        minDate={START_DATE}
+        maxDate={END_DATE}
+        // shouldDisableDate={shouldDisableDate}
+        format="MMMD日"
+        variant="inline"
+        label={intl.formatMessage(messages.date)}
+        value={selectedDate}
+        onChange={onDateChange}
+        inputVariant="outlined"
+        animateYearScrolling
+      />
+  </CardContent>
+  </Card>;
 }
 
 

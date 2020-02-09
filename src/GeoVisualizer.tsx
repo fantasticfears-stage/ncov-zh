@@ -3,6 +3,7 @@ import { WithStyles } from "@material-ui/styles/withStyles";
 import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
+import CssBaseline from '@material-ui/core/CssBaseline';
 import { RouteComponentProps, navigate } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
 import { useAsync } from "react-use";
@@ -20,7 +21,10 @@ import ProvinceTabVisualizer from './ProvinceTabVisualizer';
 import About from "./About";
 import ErrorBoundary from './ErrorBoundary';
 
-const styles = ({ spacing, transitions }: Theme) => createStyles({
+const styles = ({ spacing, mixins }: Theme) => createStyles({
+  appBarSpacer: {
+    minHeight: spacing(3)
+  }
 });
 
 interface IGeoVisualizerRoutes {
@@ -166,6 +170,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   }, [params, path]);
 
   return <div>
+    <CssBaseline />
     <ErrorBoundary>
       <AppBar position="static">
         <Tabs value={value} onChange={handleChange} centered={matches}>
@@ -193,6 +198,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
           />
         </Tabs>
       </AppBar>
+      <div className={classes.appBarSpacer} />
       <TabPanel value={value} index="nation-tab">
         <NationTabVisualizer
           params={params}

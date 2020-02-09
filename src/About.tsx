@@ -23,7 +23,7 @@ const About: React.FunctionComponent<IAboutProps> = () => {
       <FormattedMessage
         id="about.content"
         description="desc"
-        defaultMessage="链接直达。交互式存档。"
+        defaultMessage="链接直达。交互式存档。无论是哪个地方，哪一天，到那个页面，分享或者保存链接，就永远可以找到那。"
       />
   </Container>
 }

@@ -11,6 +11,7 @@ import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES, EMP
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Paper from '@material-ui/core/Paper';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
@@ -98,7 +99,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   const fn = useCallback((d: ExtendedFeature) => {
     const values = byProvince.values().map(d => d[filter]);
     const domain = [d3.min(values) || 0, d3.max(values) || 1000];
-    
+
     const fillFn = FILL_FN_MAP[filter]
       .domain(domain);
     const provinceName = d.properties?.name as string;
@@ -184,7 +185,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   ];
 
   return <Container ref={containerRef}>
-    <Grid container>
+    <Grid container spacing={3}>
       <Grid item md={4} xs={12}>
         <DisplayBoard
           filter={filter}
@@ -195,15 +196,17 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
           handleDateChange={handleDateChange}
         />
       </Grid>
-      <Grid item md={8} xs={12} ref={measureRef}>
-        {state.loading || dataState.loading ? <CircularProgress /> :
-          <svg width={dimension.width} height={dimension.height} className="container">
-            <GraphRenderer
-              geoGenerator={geoGenerator}
-              features={state.value?.features!}
-              fillFn={fn}
-              eventHandlers={eventHandlers} />
-          </svg>}
+      <Grid item md={8} xs={12}>
+        <Paper ref={measureRef}>
+          {state.loading || dataState.loading ? <CircularProgress /> :
+            <svg width={dimension.width} height={dimension.height} className="container">
+              <GraphRenderer
+                geoGenerator={geoGenerator}
+                features={state.value?.features!}
+                fillFn={fn}
+                eventHandlers={eventHandlers} />
+            </svg>}
+        </Paper>
       </Grid>
     </Grid>
   </Container>;

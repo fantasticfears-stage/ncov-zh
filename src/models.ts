@@ -5,6 +5,7 @@ export interface IRegionData {
   discharged: number;
   deceased: number;
   suspected: number;
+  name?: string;
 }
 
 export const EMPTY_REGION_DATA: IRegionData = {
