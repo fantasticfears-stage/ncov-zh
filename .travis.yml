@@ -27,7 +27,7 @@ deploy:
   github_token: $GITHUB_TOKEN
   target_branch: gh-pages
   keep_history: false
-  fqdn: ncov-zh.dvis.xyz
+  fqdn: ncov-gh.dvis.xyz
   local_dir: build
   on:
     branch: master
