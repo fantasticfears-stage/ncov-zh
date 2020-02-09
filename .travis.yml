@@ -15,6 +15,7 @@ after_success:
   - eval "$(ssh-agent -s)" #start the ssh agent
   - chmod 600 ~/.ssh/coding_ed25519 # this key should have push access
   - ssh-add ~/.ssh/coding_ed25519
+  - ssh-keyscan e.coding.net >> ~/.ssh/known_hosts
   - git remote add deploy git@e.coding.net:erickg/ncov-zh.git
   - git checkout -b coding-pages
   - git push deploy coding-pages
