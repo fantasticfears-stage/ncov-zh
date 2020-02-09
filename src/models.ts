@@ -37,20 +37,31 @@ export type FilterType = "confirmed" | "discharged" | "deceased" | "suspected";
 export const FILL_FN_MAP: Record<string, d3.ScalePower<number, string>> = {
   "discharged": d3.scalePow()
     .interpolate(() => d3.interpolateGreens)
-    .exponent(0.3)
-    .domain([0, 100]),
+    .exponent(0.3),
   "deceased": d3.scalePow()
     .interpolate(() => d3.interpolatePurples)
-    .exponent(0.2)
-    .domain([0, 1000]),
+    .exponent(0.2),
   "confirmed": d3.scalePow()
     .interpolate(() => d3.interpolateOranges)
-    .exponent(0.3)
-    .domain([0, 1500]),
+    .exponent(0.1),
   "suspected": d3.scalePow()
     .interpolate(() => d3.interpolateInferno)
-    .exponent(0.3)
-    .domain([0, 1.5])
+    .exponent(0.3),
+};
+
+export const FILL_FN_PROVINCE_MAP: Record<string, d3.ScalePower<number, string>> = {
+  "discharged": d3.scalePow()
+    .interpolate(() => d3.interpolateGreens)
+    .exponent(1.2),
+  "deceased": d3.scalePow()
+    .interpolate(() => d3.interpolatePurples)
+    .exponent(1.5),
+  "confirmed": d3.scalePow()
+    .interpolate(() => d3.interpolateOranges)
+    .exponent(2),
+  "suspected": d3.scalePow()
+    .interpolate(() => d3.interpolateInferno)
+    .exponent(0.3),
 };
 
 export interface IProvinceMeta {

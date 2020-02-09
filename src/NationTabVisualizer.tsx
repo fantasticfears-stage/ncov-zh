@@ -96,8 +96,11 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   }, [dataState, selectedDate, handleDateChange]);
 
   const fn = useCallback((d: ExtendedFeature) => {
-    const fillFn = FILL_FN_MAP[filter];
-
+    const values = byProvince.values().map(d => d[filter]);
+    const domain = [d3.min(values) || 0, d3.max(values) || 1000];
+    
+    const fillFn = FILL_FN_MAP[filter]
+      .domain(domain);
     const provinceName = d.properties?.name as string;
     let num = 0;
     const data = TryGetDataFromPrefix(byProvince, provinceName);
@@ -143,11 +146,11 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   const onMouseOver = React.useCallback(function (this: SVGPathElement, d: ExtendedFeature) {
     d3.selectAll(".region-item")
       .transition()
-      .duration(200)
+      .duration(300)
       .style("opacity", 0.5);
     d3.select<SVGPathElement, ExtendedFeature>(this)
       .transition()
-      .duration(200)
+      .duration(300)
       .style("opacity", 1)
       .style("stroke", "black");
     if (pinned) { return; }

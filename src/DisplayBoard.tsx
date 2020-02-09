@@ -54,7 +54,6 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
   };
 
   const [START_DATE, END_DATE] = DATE_RANGE;
-  console.log(data);
   return <div className={classes.root}>
     <Typograph variant="h4">{name}</Typograph>
 

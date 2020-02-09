@@ -7,7 +7,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_PROVINCE_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import GraphRenderer from './GraphRenderer';
@@ -35,6 +35,7 @@ function PluckDataByFilter(data: IRegionData, filter: FilterType) {
 }
 
 function TryGetDataFromPrefix(byMapped: d3.Map<IRegionData>, prefix: string) {
+  prefix = stripRegionNameForKey(prefix);
   const keys = byMapped.keys();
   const idx = keys.findIndex(p => p.startsWith(prefix));
   if (idx !== -1) {
@@ -114,7 +115,11 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   }, [dataState, selectedDate, handleDateChange]);
 
   const fn = useCallback((d: ExtendedFeature) => {
-    const fillFn = FILL_FN_MAP[filter];
+    const values = byCity.values().map(d => d[filter]);
+    const domain = [0, d3.max(values) || 60];
+    
+    const fillFn = FILL_FN_PROVINCE_MAP[filter]
+      .domain(domain);
 
     const provinceName = d.properties?.name as string;
     let num = 0;
@@ -122,6 +127,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     if (data) {
       num = PluckDataByFilter(data, filter);
     }
+
     return fillFn ? fillFn(num) : '#eeeeee';
   }, [byCity, filter]);
 
@@ -162,11 +168,11 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   const onMouseOver = React.useCallback(function (this: SVGPathElement, d: ExtendedFeature) {
     d3.selectAll(".region-item")
       .transition()
-      .duration(200)
+      .duration(300)
       .style("opacity", 0.5);
     d3.select<SVGPathElement, ExtendedFeature>(this)
       .transition()
-      .duration(200)
+      .duration(300)
       .style("opacity", 1)
       .style("stroke", "black");
     if (pinned) { return; }
@@ -176,15 +182,19 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     }
   }, [pinned]);
 
-  function onMouseClick(d: ExtendedFeature) {
-    setPinned(true);
+  const onMouseClick = React.useCallback((d: ExtendedFeature) => {
 
     const name = d?.properties?.name;
     if (name) {
+      if (city === name) {
+        setPinned(!pinned);
+      } else {
+        setPinned(true);
+      }
       setCity(name);
     }
     // moveOverRegionPanel(d);
-  }
+  }, [city, pinned]);
 
   const onMouseOut = React.useCallback((d: ExtendedFeature) => {
     if (pinned) { return; }
