@@ -10,6 +10,7 @@ import DisplayBoard from './DisplayBoard';
 import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
@@ -77,11 +78,11 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
 
   const [byProvince, setByProvince] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
-    
+
   useEffect(() => {
     const data = dataState.value;
     if (!data) { return; }
-    const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: ( h[obj.updatedAtDate] || [] ).concat(obj) }), {})
+    const byDate = data.reduce((h: Record<string, AreaCsvItem[]>, obj: AreaCsvItem) => Object.assign(h, { [obj.updatedAtDate]: (h[obj.updatedAtDate] || []).concat(obj) }), {})
 
     let chosenDate = selectedDate.toISOString().substr(0, 10);
     if (!byDate[chosenDate]) {
@@ -111,7 +112,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
     setFilter(filter);
   };
 
-  const [data, setData] = React.useState<IRegionData>(EMPTY_REGION_DATA);
+  const [data, setData] = React.useState<IRegionData | null>(null);
 
   React.useEffect(() => {
     if (province) {
@@ -120,8 +121,11 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
         setData(data);
       }
     } else {
+      if (byProvince.size() === 0) {
+        return;
+      }
       const total = byProvince.entries().reduce((acc, item) => {
-        const {value} = item;
+        const { value } = item;
         return {
           confirmed: acc.confirmed + value.confirmed,
           discharged: acc.discharged + value.discharged,
@@ -174,7 +178,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
     ["click", onMouseClick],
     ["mouseout", onMouseOut]
   ];
-  
+
   return <Container ref={containerRef}>
     <Grid container>
       <Grid item md={4} xs={12}>
@@ -188,13 +192,14 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
         />
       </Grid>
       <Grid item md={8} xs={12} ref={measureRef}>
-        <svg width={dimension.width} height={dimension.height} className="container">
-          {state.loading && dataState.loading ? "loading" : <GraphRenderer
-            geoGenerator={geoGenerator}
-            features={state.value?.features!}
-            fillFn={fn}
-            eventHandlers={eventHandlers} />}
-        </svg>
+        {state.loading || dataState.loading ? <CircularProgress /> :
+          <svg width={dimension.width} height={dimension.height} className="container">
+            <GraphRenderer
+              geoGenerator={geoGenerator}
+              features={state.value?.features!}
+              fillFn={fn}
+              eventHandlers={eventHandlers} />
+          </svg>}
       </Grid>
     </Grid>
   </Container>;

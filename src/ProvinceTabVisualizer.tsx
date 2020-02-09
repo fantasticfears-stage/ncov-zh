@@ -15,6 +15,7 @@ import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 import { useMeasures } from './helpers/useMeasures';
 import { stripRegionNameForKey } from './helpers/sanitizers';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -129,7 +130,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     setFilter(filter);
   };
 
-  const [data, setData] = React.useState<IRegionData>(EMPTY_REGION_DATA);
+  const [data, setData] = React.useState<IRegionData | null>(null);
 
   React.useEffect(() => {
     if (city) {
@@ -139,6 +140,9 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
         setData(data);
       }
     } else {
+      if (byCity.size() === 0) {
+        return;
+      }
       const total = byCity.entries().reduce((acc, item) => {
         const {value} = item;
         return {
@@ -209,13 +213,14 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
         />
       </Grid>
       <Grid item md={8} xs={12} ref={measureRef}>
-        <svg width={dimension.width} height={dimension.height} className="container">
-          {state.loading && dataState.loading ? "loading" : <GraphRenderer
-            geoGenerator={geoGenerator}
-            features={state.value?.features!}
-            fillFn={fn}
-            eventHandlers={eventHandlers} />}
-        </svg>
+        {state.loading || dataState.loading ? <CircularProgress /> :
+          <svg width={dimension.width} height={dimension.height} className="container">
+            <GraphRenderer
+              geoGenerator={geoGenerator}
+              features={state.value?.features!}
+              fillFn={fn}
+              eventHandlers={eventHandlers} />
+          </svg>}
       </Grid>
     </Grid>
   </Container>;
