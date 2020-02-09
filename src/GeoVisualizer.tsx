@@ -18,6 +18,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import useTheme from '@material-ui/core/styles/useTheme';
 import ProvinceTabVisualizer from './ProvinceTabVisualizer';
 import About from "./About";
+import ErrorBoundary from './ErrorBoundary';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -26,7 +27,7 @@ interface IGeoVisualizerRoutes {
 
 }
 
-type TabType = 'nation-tab' | 'region-tab' | 'about-tab'; 
+type TabType = 'nation-tab' | 'region-tab' | 'about-tab';
 
 interface IGeoVisualizerProps extends RouteComponentProps<IGeoVisualizerRoutes>, WithStyles<typeof styles> {
 
@@ -158,64 +159,66 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
 
   const handleDateChange = React.useCallback((date: Date) => {
     setSelectedDate(date);
-    
+
     params.set('date', date.toISOString().substr(0, 10));
     navigate(`${path}?${params}`);
   }, [params, path]);
 
   return <div>
-    <AppBar position="static">
-      <Tabs value={value} onChange={handleChange} centered={matches}>
-        <Tab
-          value="nation-tab"
-          label={intl.formatMessage(messages.nation)}
-          onClick={() => { 
-            params.delete('province');
-            navigate(`/?${params}`);
-          }}
-          {...a11yProps('nation-tab')}
+    <ErrorBoundary>
+      <AppBar position="static">
+        <Tabs value={value} onChange={handleChange} centered={matches}>
+          <Tab
+            value="nation-tab"
+            label={intl.formatMessage(messages.nation)}
+            onClick={() => {
+              params.delete('province');
+              navigate(`/?${params}`);
+            }}
+            {...a11yProps('nation-tab')}
+          />
+          <Tab
+            value="region-tab"
+            disabled={!region}
+            label={region === null ? intl.formatMessage(messages.region) : region}
+            onClick={() => { navigate(`/region?${params}`) }}
+            {...a11yProps('region-tab')}
+          />
+          <Tab
+            value="about-tab"
+            label={intl.formatMessage(messages.about)}
+            onClick={() => { navigate("/about") }}
+            {...a11yProps('about-tab')}
+          />
+        </Tabs>
+      </AppBar>
+      <TabPanel value={value} index="nation-tab">
+        <NationTabVisualizer
+          params={params}
+          state={state}
+          dataState={dataState}
+          moveOverRegionPanel={moveOverRegionPanel}
+          filter={filter}
+          setFilter={setFilterPushingHistory}
+          selectedDate={selectedDate}
+          handleDateChange={handleDateChange}
         />
-        <Tab
-          value="region-tab"
-          disabled={!region}
-          label={region === null ? intl.formatMessage(messages.region) : region}
-          onClick={() => { navigate(`/region?${params}`) }}
-          {...a11yProps('region-tab')}
+      </TabPanel>
+      <TabPanel value={value} index="region-tab">
+        <ProvinceTabVisualizer
+          params={params}
+          state={stateProvince}
+          filter={filter}
+          setFilter={setFilterPushingHistory}
+          selectedDate={selectedDate}
+          handleDateChange={handleDateChange}
         />
-        <Tab
-          value="about-tab"
-          label={intl.formatMessage(messages.about)}
-          onClick={() => { navigate("/about") }}
-          {...a11yProps('about-tab')}
+      </TabPanel>
+      <TabPanel value={value} index="about-tab">
+        <About
         />
-      </Tabs>
-    </AppBar>
-    <TabPanel value={value} index="nation-tab">
-      <NationTabVisualizer
-        params={params}
-        state={state}
-        dataState={dataState}
-        moveOverRegionPanel={moveOverRegionPanel}
-        filter={filter}
-        setFilter={setFilterPushingHistory}
-        selectedDate={selectedDate}
-        handleDateChange={handleDateChange}
-      />
-    </TabPanel>
-    <TabPanel value={value} index="region-tab">
-      <ProvinceTabVisualizer
-        params={params}
-        state={stateProvince}
-        filter={filter}
-        setFilter={setFilterPushingHistory}
-        selectedDate={selectedDate}
-        handleDateChange={handleDateChange}
-      />
-    </TabPanel>
-    <TabPanel value={value} index="about-tab">
-      <About
-      />
-    </TabPanel>
+      </TabPanel>
+    </ErrorBoundary>
   </div>;
 }
 

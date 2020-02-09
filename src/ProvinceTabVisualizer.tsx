@@ -7,13 +7,14 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, STRIP_KEY_PARTS } from './models';
+import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 import { useMeasures } from './helpers/useMeasures';
+import { stripRegionNameForKey } from './helpers/sanitizers';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -51,24 +52,34 @@ const messages = defineMessages({
   },
 });
 
+function getProvinceMeta(key: string): IProvinceMeta | null {
+  if (Object.keys(PROVINCE_META_MAP).indexOf(key) !== -1) {
+    return PROVINCE_META_MAP[key];
+  }
+  return null;
+}
+
 const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = ({ filter, setFilter, params, state, selectedDate, handleDateChange }) => {
   const intl = useIntl();
 
   const geoGenerator = d3.geoPath();
   const [province] = React.useState<string | null>(params.get("province"));
-  const provinceKey: string = STRIP_KEY_PARTS.reduce((acc: string, v) => { return acc.replace(v, "") }, province || "");
-  if (Object.keys(PROVINCE_META_MAP).indexOf(provinceKey) !== -1) {
-    geoGenerator.projection(PROVINCE_META_MAP[provinceKey].projection);
+  const provinceKey = stripRegionNameForKey(province);
+  const provinceMeta = getProvinceMeta(provinceKey);
+  if (provinceMeta === null) {
+    throw new Error("似乎出问题了。找不到这个省份。试试退后上一页或者刷新。");
   };
+  geoGenerator.projection(provinceMeta.projection);
+
   const [city, setCity] = React.useState<string | null>(null);
   const [byCity, setByCity] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
   const name = city === null ? province || "" : `${province} / ${city}`;
   useTitle(intl.formatMessage(messages.title, { region: name, filter: intl.formatMessage(messages.filters[filter]) }));
 
   const dataState = useAsync<d3.DSVParsedArray<AreaCsvItem>>(async () => {
-    if (!province) { return new Promise(resolve => {  }); }
+    if (!provinceKey || provinceKey.length === 0) { return new Promise(resolve => {  }); }
 
-    return d3.csv(`/data/provinces/${PROVINCE_META_MAP[province].filenamePrefix}.csv`, (d) => {
+    return d3.csv(`/data/provinces/${provinceMeta.filenamePrefix}.csv`, (d) => {
       // drop missing item
       if (!d.name || !d.confirmed || !d.discharged || !d.deceased || !d.suspected || !d.updatedAtDate) {
         return null;
