@@ -59,46 +59,45 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
   const [START_DATE, END_DATE] = DATE_RANGE;
   return <Card>
     <CardHeader title={name} subheader={subName}/>
-    <CardContent className={classes.root}>
-
-      <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
-        <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
-          <div>{intl.formatMessage(FILTER_MESSAGES["confirmed"])}</div>
-          <div>{data ? data.confirmed : <Skeleton variant="text"/>}</div>
-        </ToggleButton>
-        <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
-          <div>{intl.formatMessage(FILTER_MESSAGES["discharged"])}</div>
-          <div>{data ? data.discharged : <Skeleton variant="text"/>}</div>
-        </ToggleButton>
-        <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
-          <div>{intl.formatMessage(FILTER_MESSAGES["deceased"])}</div>
-          <div>{data ? data.deceased : <Skeleton variant="text"/>}</div>
-        </ToggleButton>
-        {/* <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
-          <FormattedHTMLMessage
-            id="components.display_board.labels.suspected"
-            description="Label used on display board"
-            defaultMessage="疑似<br>{num}"
-            values={{
-              num: data.suspected
-            }}
+      <CardContent className={classes.root}>
+        <DatePicker
+            disableToolbar
+            minDate={START_DATE}
+            maxDate={END_DATE}
+            // shouldDisableDate={shouldDisableDate}
+            format="MMMD日"
+            variant="inline"
+            label={intl.formatMessage(messages.date)}
+            value={selectedDate}
+            onChange={onDateChange}
+            inputVariant="outlined"
+            animateYearScrolling
           />
-        </Button> */}
-      </ToggleButtonGroup>
-      <DatePicker
-        disableToolbar
-        minDate={START_DATE}
-        maxDate={END_DATE}
-        // shouldDisableDate={shouldDisableDate}
-        format="MMMD日"
-        variant="inline"
-        label={intl.formatMessage(messages.date)}
-        value={selectedDate}
-        onChange={onDateChange}
-        inputVariant="outlined"
-        animateYearScrolling
-      />
-  </CardContent>
+        <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
+          <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
+            <div>{intl.formatMessage(FILTER_MESSAGES["confirmed"])}</div>
+            <div>{data ? data.confirmed : <Skeleton variant="text"/>}</div>
+          </ToggleButton>
+          <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
+            <div>{intl.formatMessage(FILTER_MESSAGES["discharged"])}</div>
+            <div>{data ? data.discharged : <Skeleton variant="text"/>}</div>
+          </ToggleButton>
+          <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
+            <div>{intl.formatMessage(FILTER_MESSAGES["deceased"])}</div>
+            <div>{data ? data.deceased : <Skeleton variant="text"/>}</div>
+          </ToggleButton>
+          {/* <Button className={classes.filterButton} onClick={(e) => onClick(e, "suspected")}>
+            <FormattedHTMLMessage
+              id="components.display_board.labels.suspected"
+              description="Label used on display board"
+              defaultMessage="疑似<br>{num}"
+              values={{
+                num: data.suspected
+              }}
+            />
+          </Button> */}
+        </ToggleButtonGroup>
+    </CardContent>
   </Card>;
 }
 
