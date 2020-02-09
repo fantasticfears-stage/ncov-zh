@@ -4,7 +4,7 @@ import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { useIntl, defineMessages, FormattedHTMLMessage } from "react-intl";
-import { IRegionData, FilterType, DATE_RANGE } from "./models";
+import { IRegionData, FilterType, DATE_RANGE, FILTER_MESSAGES } from "./models";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typograph from '@material-ui/core/Typography';
@@ -14,7 +14,8 @@ import moment from 'moment';
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
   filterButton: {
-    minWidth: spacing(10)
+    minWidth: spacing(10),
+    color: 'rgba(0,0,0,1)',
   },
   root: {
     '& > *': {
@@ -56,30 +57,33 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
     <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
       <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>
         <FormattedHTMLMessage
-          id="components.display_board.labels.confirmed"
+          id="components.display_board.label"
           description="Label used on display board"
-          defaultMessage="确诊<br>{num}"
+          defaultMessage={"{filter}<br>{num}"}
           values={{
+            filter: intl.formatMessage(FILTER_MESSAGES["confirmed"]),
             num: data.confirmed
           }}
         />
       </ToggleButton>
       <ToggleButton value="discharged" selected={filter === "discharged"} className={classes.filterButton} onClick={(e) => onClick(e, "discharged")}>
-        <FormattedHTMLMessage
-          id="components.display_board.labels.discharged"
+      <FormattedHTMLMessage
+          id="components.display_board.label"
           description="Label used on display board"
-          defaultMessage="治愈<br>{num}"
+          defaultMessage={"{filter}<br>{num}"}
           values={{
+            filter: intl.formatMessage(FILTER_MESSAGES["discharged"]),
             num: data.discharged
           }}
         />
       </ToggleButton>
       <ToggleButton value="deceased" selected={filter === "deceased"} className={classes.filterButton} onClick={(e) => onClick(e, "deceased")}>
         <FormattedHTMLMessage
-          id="components.display_board.labels.deceased"
+          id="components.display_board.label"
           description="Label used on display board"
-          defaultMessage="去世<br>{num}"
+          defaultMessage={"{filter}<br>{num}"}
           values={{
+            filter: intl.formatMessage(FILTER_MESSAGES["deceased"]),
             num: data.deceased
           }}
         />

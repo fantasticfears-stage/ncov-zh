@@ -341,22 +341,22 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
 
 export const FILTER_MESSAGES: Record<FilterType, any> = {
   confirmed: {
-    id: "geovisualizer.filters.confirmed",
+    id: "models.filters.confirmed",
     description: "type filter for region",
     defaultMessage: "确诊"
   },
   deceased: {
-    id: "geovisualizer.filters.deceased",
+    id: "models.filters.deceased",
     description: "type filter for region",
-    defaultMessage: "去世"
+    defaultMessage: "死亡"
   },
   discharged: {
-    id: "geovisualizer.filters.discharged",
+    id: "models.filters.discharged",
     description: "type filter for region",
     defaultMessage: "治愈"
   },
   suspected: {
-    id: "geovisualizer.filters.suspected",
+    id: "models.filters.suspected",
     description: "type filter for region",
     defaultMessage: "疑似"
   }
