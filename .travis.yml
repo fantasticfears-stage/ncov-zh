@@ -16,7 +16,8 @@ after_success:
   - chmod 600 ~/.ssh/coding_ed25519 # this key should have push access
   - ssh-add ~/.ssh/coding_ed25519
   - git remote add deploy git@e.coding.net:erickg/ncov-zh.git
-  - git push deploy
+  - git checkout -b coding-pages
+  - git push deploy coding-pages
 deploy:
   provider: pages
   skip_cleanup: true
