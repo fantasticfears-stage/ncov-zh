@@ -37,7 +37,7 @@ const messages = defineMessages({
   region: {
     id: "geovisualizer.region",
     description: "filter for region",
-    defaultMessage: "地区"
+    defaultMessage: "点击地图选择地区"
   },
   nation: {
     id: "geovisualizer.nation",
@@ -102,7 +102,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   let defaultValue: TabType = "nation-tab";
   if (path?.startsWith("/about")) {
     defaultValue = "about-tab";
-  } else if (region !== null) {
+  } else if (path?.startsWith("/region")) {
     defaultValue = 'region-tab';
   }
   const [value, setValue] = React.useState<TabType>(defaultValue);
@@ -172,7 +172,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
             value="nation-tab"
             label={intl.formatMessage(messages.nation)}
             onClick={() => {
-              params.delete('province');
+              // params.delete('province');
               navigate(`/?${params}`);
             }}
             {...a11yProps('nation-tab')}
@@ -187,7 +187,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
           <Tab
             value="about-tab"
             label={intl.formatMessage(messages.about)}
-            onClick={() => { navigate("/about") }}
+            onClick={() => { navigate(`/about?${params}`) }}
             {...a11yProps('about-tab')}
           />
         </Tabs>
