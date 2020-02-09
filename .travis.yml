@@ -20,7 +20,7 @@ after_success:
   - git checkout -b coding-pages
   - yes | cp -rf build/* .
   - git add . && git commit -m "deploy files"
-  - git push deploy coding-pages
+  - git push deploy coding-pages -f
 deploy:
   provider: pages
   skip_cleanup: true
