@@ -18,6 +18,8 @@ after_success:
   - ssh-keyscan e.coding.net >> ~/.ssh/known_hosts
   - git remote add deploy git@e.coding.net:erickg/ncov-zh.git
   - git checkout -b coding-pages
+  - yes | cp -rf build/* .
+  - git add . && git commit -m "deploy files"
   - git push deploy coding-pages
 deploy:
   provider: pages
