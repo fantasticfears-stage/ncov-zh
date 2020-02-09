@@ -83,7 +83,7 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
       .parallels([15, 65])
       .rotate([-110, 0])
       .scale(5500)
-      .center([9, 147.5])
+      .center([11, 148])
   },
   '澳门': {
     filenamePrefix: 'ao_men',
@@ -99,15 +99,15 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(17000)
-    .center([7, 139.7])
+    .center([7.7, 139.7])
   },
   '重庆': {
     filenamePrefix: 'chong_qing',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(7500)
-    .center([-1, 149.5])
+    .scale(6500)
+    .center([0.4, 149.8])
   },
   '福建': {
     filenamePrefix: 'fu_jian',
@@ -115,47 +115,47 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(6300)
-    .center([10.5, 153.9])
+    .center([11, 153.9])
   },
   '甘肃': {
     filenamePrefix: 'gan_su',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(2800)
-    .center([-5.1, 141])
+    .scale(2200)
+    .center([-0.5, 142])
   },
   '广东': {
     filenamePrefix: 'guang_dong',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(5300)
-    .center([5.2, 157])
+    .scale(3800)
+    .center([7.7, 158])
   },
   '广西': {
     filenamePrefix: 'guang_xi',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(6000)
-    .center([0, 155.5])
+    .scale(4000)
+    .center([2.3, 157])
   },
   '贵州': {
     filenamePrefix: 'gui_zhou',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(5500)
-    .center([-1, 153])
+    .scale(5000)
+    .center([0, 153.3])
   },
   '海南': {
     filenamePrefix: 'hai_nan',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(13000)
-    .center([0.5, 160.7])
+    .scale(10000)
+    .center([1.5, 161])
   },
   '河北': {
     filenamePrefix: 'he_bei',
@@ -163,7 +163,7 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(4000)
-    .center([10.1, 140.6])
+    .center([12, 140.6])
   },
   '河南': {
     filenamePrefix: 'he_nan',
@@ -171,23 +171,23 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(5500)
-    .center([6.5, 146])
+    .center([6.9, 146])
   },
   '黑龙江': {
     filenamePrefix: 'hei_long_jiang',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(3300)
-    .center([22, 131])
+    .scale(3000)
+    .center([25.5, 132])
   },
   '湖北': {
     filenamePrefix: 'hu_bei',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(5500)
-    .center([4.5, 149])
+    .scale(4200)
+    .center([6.5, 150])
   },
   '湖南': {
     filenamePrefix: 'hu_nan',
@@ -195,23 +195,23 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(5500)
-    .center([3.5, 152])
+    .center([4.8, 152.3])
   },
   '吉林': {
     filenamePrefix: 'ji_lin',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(5300)
-    .center([19, 136])
+    .scale(4000)
+    .center([21.4, 137.5])
   },
   '江苏': {
     filenamePrefix: 'jiang_su',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(7000)
-    .center([10.5, 146.5])
+    .scale(5600)
+    .center([12.4, 147.4])
   },
   '江西': {
     filenamePrefix: 'jiang_xi',
@@ -227,15 +227,15 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(5500)
-    .center([15, 139])
+    .center([16, 139])
   },
   '内蒙古': {
     filenamePrefix: 'nei_meng_gu',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(1800)
-    .center([10.1, 133])
+    .scale(1500)
+    .center([15.2, 135.5])
   },
   '宁夏': {
     filenamePrefix: 'ning_xia',
@@ -243,23 +243,23 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(6500)
-    .center([-3.1, 142.5])
+    .center([0, 142.5])
   },
   '青海': {
     filenamePrefix: 'qing_hai',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(3200)
-    .center([-10, 143.5])
+    .scale(2500)
+    .center([-6, 145])
   },
   '山东': {
     filenamePrefix: 'shan_dong',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(6000)
-    .center([10.5, 143.5])
+    .scale(4600)
+    .center([12.8, 144.5])
   },
   '山西': {
     filenamePrefix: 'shan_xi_1',
@@ -290,8 +290,8 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(3500)
-    .center([-5, 149])
+    .scale(3000)
+    .center([-1, 149.5])
   },
   '台湾': {
     filenamePrefix: 'tai_wan',
@@ -307,15 +307,15 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     .parallels([15, 65])
     .rotate([-110, 0])
     .scale(17000)
-    .center([8, 140.5])
+    .center([9, 140.5])
   },
   '西藏': {
     filenamePrefix: 'xi_zang',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(2300)
-    .center([-18.1, 147])
+    .scale(1700)
+    .center([-10.5, 149])
   },
   '香港': {
     filenamePrefix: 'xiang_gang',
@@ -330,24 +330,24 @@ export const PROVINCE_META_MAP: Record<string, IProvinceMeta> = {
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(2000)
-    .center([-20.1, 136.6])
+    .scale(1600)
+    .center([-12.5, 138])
   },
   '云南': {
     filenamePrefix: 'yun_nan',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(4000)
-    .center([-5, 153.5])
+    .scale(3500)
+    .center([-3.6, 153.8])
   },
   '浙江': {
     filenamePrefix: 'zhe_jiang',
     projection: d3.geoConicEqualArea()
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(7000)
-    .center([13, 150.5])
+    .scale(6700)
+    .center([13, 151])
   }
 }
 
