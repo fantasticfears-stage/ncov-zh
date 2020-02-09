@@ -23,12 +23,12 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { darken } from "@material-ui/core/styles/colorManipulator";
+import { emphasize } from "@material-ui/core/styles/colorManipulator";
 
 const styles = ({ spacing, palette }: Theme) => createStyles({
   container: {},
   highlightRow: {
-    backgroundColor: darken(palette.background.default, 0.2)
+    backgroundColor: emphasize(palette.background.default, 0.3)
   }
 });
 
@@ -64,6 +64,11 @@ const messages = defineMessages({
     description: "title for geovisualizer",
     defaultMessage: "{region}地区 - {filter}"
   },
+  all: {
+    id: "provinces.all",
+    description: "province display card",
+    defaultMessage: '所有地区'
+  }
 });
 
 function getProvinceMeta(key: string): IProvinceMeta | null {
@@ -231,7 +236,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
           filter={filter}
           onClick={handleFilterClicked}
           name={province}
-          subName={city}
+          subName={city || intl.formatMessage(messages.all)}
           data={data}
           selectedDate={selectedDate}
           handleDateChange={handleDateChange}
@@ -267,7 +272,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
               </TableRow>
             </TableHead>
             <TableBody>
-              {byCity.values().map((row, idx) => { return <TableRow key={idx} className={row.name === city ? classes.highlightRow : undefined}>
+              {byCity.values().map((row, idx) => { return <TableRow key={idx} className={row.name === stripRegionNameForKey(city) ? classes.highlightRow : undefined}>
                   <TableCell>{row.name}</TableCell>
                   <TableCell align="right">{row.confirmed}</TableCell>
                   <TableCell align="right">{row.discharged}</TableCell>
