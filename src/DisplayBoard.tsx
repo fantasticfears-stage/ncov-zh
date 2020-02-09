@@ -4,7 +4,7 @@ import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { useIntl, defineMessages, FormattedHTMLMessage } from "react-intl";
-import { IRegionData, FilterType } from "./models";
+import { IRegionData, FilterType, DATE_RANGE } from "./models";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typograph from '@material-ui/core/Typography';
@@ -15,6 +15,11 @@ import moment from 'moment';
 const styles = ({ spacing, transitions }: Theme) => createStyles({
   filterButton: {
     minWidth: spacing(10)
+  },
+  root: {
+    '& > *': {
+      margin: spacing(1, 1),
+    }
   }
 });
 
@@ -42,7 +47,19 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
     if (!date) { return; }
     handleDateChange(date.toDate());
   };
-  return <div>
+
+  const shouldDisableDate = (day: moment.Moment | null) => {
+    if (!day) { return true; }
+    const [START_DATE, END_DATE] = DATE_RANGE;
+    if (day > moment(END_DATE)) {
+      return true;
+    } else if (day < moment(START_DATE)) {
+       return true;
+    }
+    return false;
+  };
+
+  return <div className={classes.root}>
     <Typograph variant="h4">{name}</Typograph>
 
     <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
@@ -89,10 +106,13 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
     </ToggleButtonGroup>
     <DatePicker
       disableToolbar
+      shouldDisableDate={shouldDisableDate}
+      format="MMMD日"
       variant="inline"
       label={intl.formatMessage(messages.date)}
       value={selectedDate}
       onChange={onDateChange}
+      inputVariant="outlined"
       animateYearScrolling
     />
 

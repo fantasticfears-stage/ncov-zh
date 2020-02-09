@@ -103,10 +103,9 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
 
     let chosenDate = selectedDate.toISOString().substr(0, 10);
     if (!byDate[chosenDate]) {
-      chosenDate = Object.keys(byDate)[0];
-      handleDateChange(new Date(chosenDate));
-    } else {
-      console.log(`error date ${chosenDate}`);
+      const newDate = Object.keys(byDate)[0];
+      console.log(`error date ${chosenDate}, switching to ${newDate}`);
+      handleDateChange(new Date(newDate));
     }
     const extracted = byDate[chosenDate];
     const byCity = d3.nest<AreaCsvItem, IRegionData>().key(d => d.name).rollup(d => d[0]).map(extracted);

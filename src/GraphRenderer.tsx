@@ -37,7 +37,7 @@ const GraphRenderer: React.FunctionComponent<IGraphRendererProps> = ({features, 
       .attr('transform', d => {
         return `translate(${geoGenerator.centroid(d)})`;
       })
-      .style('text-anchor', 'middle')
+      .attr("class", "region-item-text")
       .text(d => d?.properties?.name);
       t.exit().remove();
     
