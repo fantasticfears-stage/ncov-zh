@@ -7,7 +7,6 @@ import { useIntl, defineMessages } from "react-intl";
 import { IRegionData, FilterType, DATE_RANGE, FILTER_MESSAGES } from "./models";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import Typograph from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';

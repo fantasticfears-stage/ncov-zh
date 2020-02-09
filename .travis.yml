@@ -4,10 +4,18 @@ node_js:
 cache:
   directories:
     - node_modules
+before_install:
+  - openssl aes-256-cbc -K $encrypted_52b9f7f9c77d_key -iv $encrypted_52b9f7f9c77d_iv -in coding_ed25519.enc -out ~\/.ssh/coding_ed25519 -d
 script:
   - npm run build
   - mkdir -p build/region && cp build/index.html build/region/index.html
   - mkdir -p build/about && cp build/index.html build/about/index.html
+after_success:
+  - eval "$(ssh-agent -s)" #start the ssh agent
+  - chmod 600 ~/.ssh/coding_ed25519 # this key should have push access
+  - ssh-add ~/.ssh/coding_ed25519
+  - git remote add deploy git@e.coding.net:erickg/ncov-zh.git
+  - git push deploy
 deploy:
   provider: pages
   skip_cleanup: true
