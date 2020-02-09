@@ -10,6 +10,7 @@ import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Typograph from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import CardHeader from '@material-ui/core/CardHeader';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { DatePicker } from "@material-ui/pickers/DatePicker";
 import moment from 'moment';
@@ -31,7 +32,8 @@ const styles = ({ spacing, palette }: Theme) => createStyles({
 });
 
 interface IDisplayBoardProps extends WithStyles<typeof styles> {
-  name: string;
+  name: string | null;
+  subName?: string | null;
   data: IRegionData | null;
   filter: FilterType;
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => void;
@@ -47,7 +49,7 @@ const messages = defineMessages({
   },
 });
 
-const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, classes, name, data, onClick, selectedDate, handleDateChange }) => {
+const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, classes, name, subName, data, onClick, selectedDate, handleDateChange }) => {
   const intl = useIntl();
 
   const onDateChange = (date: moment.Moment | null) => {
@@ -57,8 +59,8 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
 
   const [START_DATE, END_DATE] = DATE_RANGE;
   return <Card>
+    <CardHeader title={name} subheader={subName}/>
     <CardContent className={classes.root}>
-      <Typograph variant="h4">{name}</Typograph>
 
       <ToggleButtonGroup size="large" color="primary" aria-label="text primary button group">
         <ToggleButton value="confirmed" selected={filter === "confirmed"} className={classes.filterButton} onClick={(e) => onClick(e, "confirmed")}>

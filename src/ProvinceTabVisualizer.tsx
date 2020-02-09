@@ -230,7 +230,8 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
         <DisplayBoard
           filter={filter}
           onClick={handleFilterClicked}
-          name={name}
+          name={province}
+          subName={city}
           data={data}
           selectedDate={selectedDate}
           handleDateChange={handleDateChange}
