@@ -48,16 +48,7 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
     handleDateChange(date.toDate());
   };
 
-  const shouldDisableDate = (day: moment.Moment | null) => {
-    if (!day) { return true; }
-    const [START_DATE, END_DATE] = DATE_RANGE;
-    if (day > moment(END_DATE)) {
-      return true;
-    } else if (day < moment(START_DATE)) {
-       return true;
-    }
-    return false;
-  };
+  const [START_DATE, END_DATE] = DATE_RANGE;
 
   return <div className={classes.root}>
     <Typograph variant="h4">{name}</Typograph>
@@ -106,7 +97,9 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
     </ToggleButtonGroup>
     <DatePicker
       disableToolbar
-      shouldDisableDate={shouldDisableDate}
+      minDate={START_DATE}
+      maxDate={END_DATE}
+      // shouldDisableDate={shouldDisableDate}
       format="MMMD日"
       variant="inline"
       label={intl.formatMessage(messages.date)}
