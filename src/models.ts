@@ -376,4 +376,4 @@ export const FILTER_MESSAGES: Record<FilterType, any> = {
 
 export const STRIP_KEY_PARTS = ['省', '市', '自治区', '回族', '维吾尔', '壮族'];
 
-export const DATE_RANGE = [new Date(2020, 0, 24), new Date(2020, 1, 9)];
+export const DATE_RANGE = [new Date(2020, 0, 24), new Date(2020, 1, 10)];
