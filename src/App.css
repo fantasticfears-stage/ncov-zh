@@ -42,3 +42,9 @@
   pointer-events: none;
   text-anchor: middle;
 }
+
+.grad-legend-svg {
+  margin-left: 5px;
+  padding-left: 5px;
+  overflow: overlay;
+}

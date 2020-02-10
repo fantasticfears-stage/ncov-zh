@@ -7,7 +7,7 @@ import { useIntl, defineMessages, FormattedMessage } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { TextLabelDisplayLevel, IRegionData, AreaCsvItem, FilterType, FILL_FN_PROVINCE_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta, MOBILE_WIDTH_BREAKPOINT } from './models';
+import { TextLabelDisplayLevel, IRegionData, AreaCsvItem, FilterType, FILL_FN_PROVINCE_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta, MOBILE_WIDTH_BREAKPOINT, BuildScale, FILTER_INTERPOLATION } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import GraphRenderer from './GraphRenderer';
@@ -30,6 +30,10 @@ const styles = ({ spacing, palette }: Theme) => createStyles({
   container: {},
   highlightRow: {
     backgroundColor: emphasize(palette.background.default, 0.3)
+  },
+  gradLegend: {
+    height: spacing(10),
+    width: 315
   }
 });
 
@@ -136,13 +140,13 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     setByCity(byCity);
   }, [dataState, selectedDate, handleDateChange]);
 
+  const values = byCity.values().map(d => d[filter]);
+  const domain = [0, d3.max(values) || 60];
+  const fillFn = BuildScale(FILL_FN_PROVINCE_MAP, filter)
+    .interpolate(() => FILTER_INTERPOLATION[filter])
+    .domain(domain);
+
   const fn = useCallback((d: ExtendedFeature) => {
-    const values = byCity.values().map(d => d[filter]);
-    const domain = [0, d3.max(values) || 60];
-
-    const fillFn = FILL_FN_PROVINCE_MAP[filter]
-      .domain(domain);
-
     const provinceName = d.properties?.name as string;
     let num = 0;
     const data = TryGetDataFromPrefix(byCity, provinceName);
@@ -151,7 +155,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     }
 
     return fillFn ? fillFn(num) : '#eeeeee';
-  }, [byCity, filter]);
+  }, [byCity, filter, fillFn]);
 
   const handleFilterClicked = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => {
     e.preventDefault();
@@ -243,6 +247,65 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     }
   }, [textLabelLevel, isMobileDevice, provinceMeta]);
 
+  const gradRef = React.createRef<HTMLDivElement>();
+  React.useEffect(() => {
+    if (!gradRef.current || !filter) { return; }
+
+    var w = 300, h = 30;
+
+    var key = d3.select(gradRef.current);
+    key.selectAll("*").remove();
+    const s = key
+      .append("svg")
+      .attr("width", w+15)
+      .attr("height", h)
+      .attr('class', 'grad-legend-svg');
+
+    var legend = s.append("defs")
+      .append("svg:linearGradient")
+      .attr("id", "gradient")
+      .attr("x1", "0%")
+      .attr("y1", "100%")
+      .attr("x2", "100%")
+      .attr("y2", "100%")
+      .attr("spreadMethod", "pad");
+
+    legend.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", fillFn(domain[0]))
+      .attr("stop-opacity", 1);
+
+    legend.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", fillFn(domain[1]))
+      .attr("stop-opacity", 1);
+
+    s.append("rect")
+      .attr("width", w)
+      .attr("height", 10)
+      .style("fill", "url(#gradient)");
+
+    var y = BuildScale(FILL_FN_PROVINCE_MAP, filter)
+      .range([0, 300])
+      .domain(domain);
+
+    var yAxis = d3.axisBottom<number>(d3.scaleBand<number>())
+      .scale(y)
+      .ticks(4);
+
+    s.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(0,10)")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0)
+      .attr("dy", "1em")
+      .style("text-anchor", "end")
+      .text("axis title");
+  }, [gradRef, fillFn, filter, domain]);
+
+
   return <Container ref={containerRef} className={classes.container}>
     <Grid container spacing={3}>
       <Grid item md={4} xs={12}>
@@ -260,7 +323,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
       </Grid>
       <Grid item md={8} xs={12}>
         <Paper ref={measureRef}>
-          {state.loading || dataState.loading ? <CircularProgress /> :
+          {state.loading || dataState.loading ? <CircularProgress /> : <React.Fragment>
             <svg width={dimension.width} height={dimension.height} className="container">
               <GraphRenderer
                 geoGenerator={geoGenerator}
@@ -268,7 +331,9 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
                 showTextLabel={showTextLabel}
                 fillFn={fn}
                 eventHandlers={eventHandlers} />
-            </svg>}
+            </svg>
+            <div className={classes.gradLegend} ref={gradRef}></div>
+            </React.Fragment>}
         </Paper>
       </Grid>
       {!(state.loading || dataState.loading) && <Grid item xs={12}>
@@ -289,12 +354,14 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
               </TableRow>
             </TableHead>
             <TableBody>
-              {byCity.values().map((row, idx) => { return <TableRow key={idx} className={row.name === stripRegionNameForKey(city) ? classes.highlightRow : undefined}>
+              {byCity.values().map((row, idx) => {
+                return <TableRow key={idx} className={row.name === stripRegionNameForKey(city) ? classes.highlightRow : undefined}>
                   <TableCell>{row.name}</TableCell>
                   <TableCell align="right">{row.confirmed}</TableCell>
                   <TableCell align="right">{row.discharged}</TableCell>
                   <TableCell align="right">{row.deceased}</TableCell>
-                </TableRow> })}
+                </TableRow>
+              })}
             </TableBody>
           </Table>
         </TableContainer>

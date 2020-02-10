@@ -35,35 +35,34 @@ export interface AreaCsvItem {
 
 export type FilterType = "confirmed" | "discharged" | "deceased" | "suspected";
 
-export const FILL_FN_MAP: Record<string, d3.ScalePower<number, string>> = {
-  "discharged": d3.scalePow()
-    .interpolate(() => d3.interpolateGreens)
-    .exponent(0.3),
-  "deceased": d3.scalePow()
-    .interpolate(() => d3.interpolatePurples)
-    .exponent(0.2),
-  "confirmed": d3.scalePow()
-    .interpolate(() => d3.interpolateOranges)
-    .exponent(0.1),
-  "suspected": d3.scalePow()
-    .interpolate(() => d3.interpolateInferno)
-    .exponent(0.3),
+// TODO: generic
+export function BuildScale(mapping: Record<FilterType, [() => d3.ScalePower<number, number>, (scale: d3.ScalePower<number, number>) => d3.ScalePower<number, number>]>, filter: FilterType): d3.ScalePower<number, number>
+{
+  const [fn, configure] = mapping[filter];
+  const scale = fn();
+  return configure(scale);
+}
+
+export const FILL_FN_MAP: Record<FilterType, [() => d3.ScalePower<number, number>, (scale: d3.ScalePower<number, number>) => d3.ScalePower<number, number>]> = {
+  "discharged": [d3.scalePow, (scale) => scale.exponent(0.3)],
+  "deceased": [d3.scalePow, (scale) => scale.exponent(0.2)],
+  "confirmed": [d3.scalePow, (scale) => scale.exponent(0.1)],
+  "suspected": [d3.scalePow, (scale) => scale.exponent(0.3)],
 };
 
-export const FILL_FN_PROVINCE_MAP: Record<string, d3.ScalePower<number, string>> = {
-  "discharged": d3.scalePow()
-    .interpolate(() => d3.interpolateGreens)
-    .exponent(1.2),
-  "deceased": d3.scalePow()
-    .interpolate(() => d3.interpolatePurples)
-    .exponent(1.5),
-  "confirmed": d3.scalePow()
-    .interpolate(() => d3.interpolateOranges)
-    .exponent(2),
-  "suspected": d3.scalePow()
-    .interpolate(() => d3.interpolateInferno)
-    .exponent(0.3),
+export const FILL_FN_PROVINCE_MAP: Record<FilterType, [() => d3.ScalePower<number, number>, (scale: d3.ScalePower<number, number>) => d3.ScalePower<number, number>]> = {
+  "discharged": [d3.scalePow, (scale) => scale.exponent(1.2)],
+  "deceased": [d3.scalePow, (scale) => scale.exponent(1.5)],
+  "confirmed": [d3.scalePow, (scale) => scale.exponent(2)],
+  "suspected": [d3.scalePow, (scale) => scale.exponent(0.3)],
 };
+
+export const FILTER_INTERPOLATION: Record<FilterType, (t: number) => string> = {
+  "discharged": d3.interpolateGreens,
+  "deceased": d3.interpolatePurples,
+  "confirmed": d3.interpolateOranges,
+  "suspected": d3.interpolateInferno
+}
 
 export interface IProvinceMeta {
   filenamePrefix: string;

@@ -7,7 +7,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { NOT_MOBILE_ACCEPT_PROVINCE, NOT_MOBILE_REJECT_PROVINCE, MOBILE_DISPLAY_PROVINCE, TextLabelDisplayLevel, IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, MOBILE_WIDTH_BREAKPOINT } from './models';
+import { NOT_MOBILE_ACCEPT_PROVINCE, NOT_MOBILE_REJECT_PROVINCE, MOBILE_DISPLAY_PROVINCE, TextLabelDisplayLevel, IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, MOBILE_WIDTH_BREAKPOINT, BuildScale, FILTER_INTERPOLATION, FILL_FN_PROVINCE_MAP } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -19,6 +19,10 @@ import { useMeasures } from './helpers/useMeasures';
 import isMobile from "./helpers/isMobile";
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
+  gradLegend: {
+    height: spacing(10),
+    width: 315
+  }
 });
 
 interface INationTabVisualizer extends WithStyles<typeof styles> {
@@ -65,7 +69,7 @@ interface IHoverItem {
   feature: ExtendedFeature;
 }
 
-const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ params, selectedDate, handleDateChange, filter, setFilter, dataState, state, moveOverRegionPanel }) => {
+const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ classes, selectedDate, handleDateChange, filter, setFilter, dataState, state, moveOverRegionPanel }) => {
   const intl = useIntl();
 
   const geoGenerator = d3.geoPath();
@@ -103,12 +107,14 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
     setByProvince(byProvince);
   }, [dataState, selectedDate, handleDateChange]);
 
-  const fn = useCallback((d: ExtendedFeature) => {
-    const values = byProvince.values().map(d => d[filter]);
-    const domain = [d3.min(values) || 0, d3.max(values) || 1000];
+  const values = byProvince.values().map(d => d[filter]);
+  const domain = [d3.min(values) || 0, d3.max(values) || 1000];
+  const fillFn = BuildScale(FILL_FN_MAP, filter)
+    .interpolate(() => FILTER_INTERPOLATION[filter])
+    .domain(domain);
 
-    const fillFn = FILL_FN_MAP[filter]
-      .domain(domain);
+  const fn = useCallback((d: ExtendedFeature) => {
+
     const provinceName = d.properties?.name as string;
     let num = 0;
     const data = TryGetDataFromPrefix(byProvince, provinceName);
@@ -116,7 +122,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
       num = PluckDataByFilter(data, filter);
     }
     return fillFn ? fillFn(num) : '#eeeeee';
-  }, [byProvince, filter]);
+  }, [byProvince, fillFn, filter]);
 
   const handleFilterClicked = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => {
     e.preventDefault();
@@ -212,19 +218,77 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
       moveOverRegionPanel(province);
     }
   }
-  
+
   const isMobileDevice = isMobile();
   const [textLabelLevel, setTextLabelLevel] = React.useState<number>(TextLabelDisplayLevel.Auto);
   const showTextLabel = React.useCallback((label: string) => {
     if (textLabelLevel <= 0) { return false; }
     else if (textLabelLevel > 10) { return true; }
-    
+
     if (isMobileDevice) {
       return MOBILE_DISPLAY_PROVINCE.indexOf(label) !== -1;
     } else {
       return (label.length <= 4 && NOT_MOBILE_REJECT_PROVINCE.indexOf(label) === -1) || NOT_MOBILE_ACCEPT_PROVINCE.indexOf(label) !== -1;
     }
   }, [textLabelLevel, isMobileDevice]);
+
+  const gradRef = React.createRef<HTMLDivElement>();
+  React.useEffect(() => {
+    if (!gradRef.current || !filter) { return; }
+
+    var w = 300, h = 30;
+
+    var key = d3.select(gradRef.current);
+    key.selectAll("*").remove();
+    const s = key
+      .append("svg")
+      .attr("width", w + 15)
+      .attr("height", h)
+      .attr('class', 'grad-legend-svg');
+
+    var legend = s.append("defs")
+      .append("svg:linearGradient")
+      .attr("id", "gradient")
+      .attr("x1", "0%")
+      .attr("y1", "100%")
+      .attr("x2", "100%")
+      .attr("y2", "100%")
+      .attr("spreadMethod", "pad");
+
+    legend.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", fillFn(domain[0]))
+      .attr("stop-opacity", 1);
+
+    legend.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", fillFn(domain[1]))
+      .attr("stop-opacity", 1);
+
+    s.append("rect")
+      .attr("width", w)
+      .attr("height", 10)
+      .style("fill", "url(#gradient)");
+
+    var y = BuildScale(FILL_FN_PROVINCE_MAP, filter)
+      .range([0, 300])
+      .domain(domain);
+
+    var yAxis = d3.axisBottom<number>(d3.scaleBand<number>())
+      .scale(y)
+      .ticks(4);
+
+    s.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(0,10)")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0)
+      .attr("dy", "1em")
+      .style("text-anchor", "end")
+      .text("axis title");
+  }, [gradRef, fillFn, filter, domain]);
 
   return <Container ref={containerRef}>
     <Grid container spacing={3}>
@@ -244,14 +308,17 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
       <Grid item md={8} xs={12}>
         <Paper ref={measureRef}>
           {state.loading || dataState.loading ? <CircularProgress /> :
-            <svg width={dimension.width} height={dimension.height} className="container">
-              <GraphRenderer
-                geoGenerator={geoGenerator}
-                features={state.value?.features!}
-                showTextLabel={showTextLabel}
-                fillFn={fn}
-                eventHandlers={eventHandlers} />
-            </svg>}
+            <React.Fragment>
+              <svg width={dimension.width} height={dimension.height} className="container">
+                <GraphRenderer
+                  geoGenerator={geoGenerator}
+                  features={state.value?.features!}
+                  showTextLabel={showTextLabel}
+                  fillFn={fn}
+                  eventHandlers={eventHandlers} />
+              </svg>
+              <div className={classes.gradLegend} ref={gradRef}></div>
+            </React.Fragment>}
         </Paper>
       </Grid>
     </Grid>
