@@ -1,0 +1,14 @@
+name: Data
+
+on: 
+  schedule:
+    - cron:  '0 * * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Update data
+      run: ./scripts/prepare_data.sh
