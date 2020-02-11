@@ -7,7 +7,7 @@ import { useIntl, defineMessages, FormattedMessage } from "react-intl";
 import { useTitle, useAsync } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_PROVINCE_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta } from './models';
+import { TextLabelDisplayLevel, IRegionData, AreaCsvItem, FilterType, FILL_FN_PROVINCE_MAP, PROVINCE_META_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, IProvinceMeta, MOBILE_WIDTH_BREAKPOINT } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import GraphRenderer from './GraphRenderer';
@@ -24,6 +24,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { emphasize } from "@material-ui/core/styles/colorManipulator";
+import isMobile from './helpers/isMobile';
 
 const styles = ({ spacing, palette }: Theme) => createStyles({
   container: {},
@@ -88,7 +89,9 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
   if (provinceMeta === null) {
     throw new Error("似乎出问题了。找不到这个省份。试试退后上一页或者刷新。");
   };
-  geoGenerator.projection(provinceMeta.projection);
+  const [containerRef, measureRef, dimension] = useMeasures(geoGenerator, state.value!);
+
+  geoGenerator.projection(dimension.width > MOBILE_WIDTH_BREAKPOINT ? provinceMeta.projection : provinceMeta.projectionMobile);
 
   const [city, setCity] = React.useState<string | null>(null);
   const [byCity, setByCity] = React.useState<d3.Map<IRegionData>>(d3.map<IRegionData>({}));
@@ -227,7 +230,18 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
     ["mouseout", onMouseOut]
   ];
 
-  const [containerRef, measureRef, dimension] = useMeasures(geoGenerator, state.value!);
+  const isMobileDevice = isMobile();
+  const [textLabelLevel, setTextLabelLevel] = React.useState<number>(TextLabelDisplayLevel.Auto);
+  const showTextLabel = React.useCallback((label: string) => {
+    if (textLabelLevel <= 0) { return false; }
+    else if (textLabelLevel > 10) { return true; }
+    
+    if (isMobileDevice) {
+      return provinceMeta.showMobileRegion ? provinceMeta.showMobileRegion(label) : true;
+    } else {
+      return provinceMeta.showRegion ? provinceMeta.showRegion(label) : true;
+    }
+  }, [textLabelLevel, isMobileDevice, provinceMeta]);
 
   return <Container ref={containerRef} className={classes.container}>
     <Grid container spacing={3}>
@@ -238,6 +252,8 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
           name={province}
           subName={city || intl.formatMessage(messages.all)}
           data={data}
+          textLabelLevel={textLabelLevel}
+          setTextLabelLevel={setTextLabelLevel}
           selectedDate={selectedDate}
           handleDateChange={handleDateChange}
         />
@@ -249,6 +265,7 @@ const _ProvinceTabVisualizer: React.FunctionComponent<IProvinceTabVisualizer> = 
               <GraphRenderer
                 geoGenerator={geoGenerator}
                 features={state.value?.features!}
+                showTextLabel={showTextLabel}
                 fillFn={fn}
                 eventHandlers={eventHandlers} />
             </svg>}

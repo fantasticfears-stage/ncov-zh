@@ -132,7 +132,6 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
   const moveOverRegionPanel = React.useCallback((regionName: string) => {
     setRegion(regionName);
     const redirectUrl = getRegionUrl(regionName);
-    console.log(redirectUrl);
     navigate(redirectUrl);
   }, [getRegionUrl]);
 

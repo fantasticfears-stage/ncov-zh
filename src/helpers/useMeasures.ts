@@ -26,7 +26,10 @@ export function useMeasures(
       const measureRect = measureRef.current.getBoundingClientRect();
       let height = docRect.height - measureRect.top;
       const mapYBoundRaw = geoGenerator.bounds(values)[1][1];
-      const maxHeight = mapYBoundRaw >= Infinity || mapYBoundRaw <= -Infinity ? MAX_HEIGHT : mapYBoundRaw;
+      let maxHeight = mapYBoundRaw >= Infinity || mapYBoundRaw <= -Infinity ? MAX_HEIGHT : mapYBoundRaw;
+      if (maxHeight < MIN_HEIGHT) {
+        maxHeight = MIN_HEIGHT;
+      }
       height = Math.max(height, maxHeight);
       if (height < MIN_HEIGHT) {
         height = MIN_HEIGHT;

@@ -7,7 +7,7 @@ import { useIntl, defineMessages } from "react-intl";
 import { useTitle } from "react-use";
 import * as d3 from "d3";
 import DisplayBoard from './DisplayBoard';
-import { IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA } from './models';
+import { NOT_MOBILE_ACCEPT_PROVINCE, NOT_MOBILE_REJECT_PROVINCE, MOBILE_DISPLAY_PROVINCE, TextLabelDisplayLevel, IRegionData, AreaCsvItem, FilterType, FILL_FN_MAP, FILTER_MESSAGES, EMPTY_REGION_DATA, MOBILE_WIDTH_BREAKPOINT } from './models';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -75,8 +75,8 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   projection
     .parallels([15, 65])
     .rotate([-110, 0])
-    .scale(dimension.width > 550 ? 800 : 660)
-    .center(dimension.width > 550 ? [10.1, 140.6] : [22, 145]);
+    .scale(dimension.width > MOBILE_WIDTH_BREAKPOINT ? 800 : 450)
+    .center(dimension.width > MOBILE_WIDTH_BREAKPOINT ? [10.1, 140.6] : [39, 160]);
 
   geoGenerator.projection(projection);
 
@@ -212,6 +212,19 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
       moveOverRegionPanel(province);
     }
   }
+  
+  const isMobileDevice = isMobile();
+  const [textLabelLevel, setTextLabelLevel] = React.useState<number>(TextLabelDisplayLevel.Auto);
+  const showTextLabel = React.useCallback((label: string) => {
+    if (textLabelLevel <= 0) { return false; }
+    else if (textLabelLevel > 10) { return true; }
+    
+    if (isMobileDevice) {
+      return MOBILE_DISPLAY_PROVINCE.indexOf(label) !== -1;
+    } else {
+      return (label.length <= 4 && NOT_MOBILE_REJECT_PROVINCE.indexOf(label) === -1) || NOT_MOBILE_ACCEPT_PROVINCE.indexOf(label) !== -1;
+    }
+  }, [textLabelLevel, isMobileDevice]);
 
   return <Container ref={containerRef}>
     <Grid container spacing={3}>
@@ -223,6 +236,8 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
           data={data}
           selectedDate={selectedDate}
           handleDateChange={handleDateChange}
+          textLabelLevel={textLabelLevel}
+          setTextLabelLevel={setTextLabelLevel}
           redirectionHint={province && isMobile() ? redirectionHint : undefined}
         />
       </Grid>
@@ -233,6 +248,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
               <GraphRenderer
                 geoGenerator={geoGenerator}
                 features={state.value?.features!}
+                showTextLabel={showTextLabel}
                 fillFn={fn}
                 eventHandlers={eventHandlers} />
             </svg>}
