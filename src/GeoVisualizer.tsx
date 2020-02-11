@@ -8,7 +8,7 @@ import { RouteComponentProps, navigate } from "@reach/router";
 import { useIntl, defineMessages } from "react-intl";
 import { useAsync } from "react-use";
 import * as d3 from "d3";
-import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
+import { ExtendedFeatureCollection } from 'd3';
 import NationTabVisualizer from "./NationTabVisualizer";
 import { AreaCsvItem, PROVINCE_META_MAP, FilterType, STRIP_KEY_PARTS } from './models';
 import AppBar from '@material-ui/core/AppBar';
@@ -129,8 +129,7 @@ const _GeoVisualizer: React.FunctionComponent<IGeoVisualizerProps> = ({ classes,
     return redirectUrl;
   }, [params]);
 
-  const moveOverRegionPanel = React.useCallback((d: ExtendedFeature) => {
-    const regionName = d?.properties?.name as string;
+  const moveOverRegionPanel = React.useCallback((regionName: string) => {
     setRegion(regionName);
     const redirectUrl = getRegionUrl(regionName);
     console.log(redirectUrl);

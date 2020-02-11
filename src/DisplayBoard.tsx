@@ -3,7 +3,7 @@ import { WithStyles } from "@material-ui/styles/withStyles";
 import createStyles from "@material-ui/styles/createStyles";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import withStyles from "@material-ui/core/styles/withStyles";
-import { useIntl, defineMessages } from "react-intl";
+import { useIntl, defineMessages, FormattedMessage } from "react-intl";
 import { IRegionData, FilterType, DATE_RANGE, FILTER_MESSAGES } from "./models";
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -14,6 +14,7 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import { DatePicker } from "@material-ui/pickers/DatePicker";
 import moment from 'moment';
 import { darken } from "@material-ui/core/styles/colorManipulator";
+import Link from '@material-ui/core/Link';
 
 const styles = ({ spacing, palette }: Theme) => createStyles({
   filterButton: {
@@ -38,6 +39,7 @@ interface IDisplayBoardProps extends WithStyles<typeof styles> {
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, filter: FilterType) => void;
   selectedDate: Date;
   handleDateChange: (date: Date) => void;
+  redirectionHint?: () => void;
 };
 
 const messages = defineMessages({
@@ -48,7 +50,7 @@ const messages = defineMessages({
   },
 });
 
-const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, classes, name, subName, data, onClick, selectedDate, handleDateChange }) => {
+const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ redirectionHint, filter, classes, name, subName, data, onClick, selectedDate, handleDateChange }) => {
   const intl = useIntl();
 
   const onDateChange = (date: moment.Moment | null) => {
@@ -97,6 +99,13 @@ const _DisplayBoard: React.FunctionComponent<IDisplayBoardProps> = ({ filter, cl
             />
           </Button> */}
         </ToggleButtonGroup>
+        {redirectionHint && <React.Fragment><br/><Link onClick={redirectionHint}>
+          <FormattedMessage
+            id="display_board.goto"
+            description="go to link on display board"
+            defaultMessage="前往查看地区详情"
+          />
+        </Link></React.Fragment>}
     </CardContent>
   </Card>;
 }

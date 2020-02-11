@@ -16,6 +16,7 @@ import GraphRenderer from './GraphRenderer';
 import { AsyncState } from 'react-use/lib/useAsyncFn';
 import { ExtendedFeatureCollection, ExtendedFeature } from 'd3';
 import { useMeasures } from './helpers/useMeasures';
+import isMobile from "./helpers/isMobile";
 
 const styles = ({ spacing, transitions }: Theme) => createStyles({
 });
@@ -24,7 +25,7 @@ interface INationTabVisualizer extends WithStyles<typeof styles> {
   params: URLSearchParams;
   state: AsyncState<ExtendedFeatureCollection>;
   dataState: AsyncState<d3.DSVParsedArray<AreaCsvItem>>;
-  moveOverRegionPanel: (d: ExtendedFeature) => void;
+  moveOverRegionPanel: (name: string) => void;
   filter: FilterType;
   setFilter: (value: FilterType) => void;
   selectedDate: Date;
@@ -58,6 +59,11 @@ const messages = defineMessages({
     defaultMessage: "全国"
   }
 });
+
+interface IHoverItem {
+  duration: Date;
+  feature: ExtendedFeature;
+}
 
 const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ params, selectedDate, handleDateChange, filter, setFilter, dataState, state, moveOverRegionPanel }) => {
   const intl = useIntl();
@@ -144,13 +150,14 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   }, [province, byProvince]);
 
   const [pinned, setPinned] = React.useState<boolean>(false);
+  const [hovered, setHovered] = React.useState<IHoverItem | null>(null);
 
-  const onMouseOver = React.useCallback(function (this: SVGPathElement, d: ExtendedFeature) {
+  const onItemOver = React.useCallback((ele: SVGPathElement, d: ExtendedFeature) => {
     d3.selectAll(".region-item")
       .transition()
       .duration(300)
       .style("opacity", 0.5);
-    d3.select<SVGPathElement, ExtendedFeature>(this)
+    d3.select<SVGPathElement, ExtendedFeature>(ele)
       .transition()
       .duration(300)
       .style("opacity", 1)
@@ -162,15 +169,31 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
     }
   }, [pinned]);
 
-  function onMouseClick(d: ExtendedFeature) {
+  const onMouseOver = React.useCallback(function (this: SVGPathElement, d: ExtendedFeature) {
+    onItemOver(this, d);
+  }, [onItemOver]);
+
+  const onMouseClick = React.useCallback((d: ExtendedFeature) => {
+    if (hovered?.duration || hovered?.feature?.properties?.name === d?.properties?.name) {
+      const now = new Date();
+      const diff = now.getTime() - (hovered !== null ? hovered.duration.getTime() : 0);
+      console.log("click ", diff);
+      if (diff <= 500) {
+        return;
+      }
+    }
+
     setPinned(true);
 
     const name = d?.properties?.name;
     if (name) {
       setProvince(name);
+      moveOverRegionPanel(name);
     }
-    moveOverRegionPanel(d);
-  }
+
+    setHovered(null);
+
+  }, [hovered, moveOverRegionPanel]);
 
   const onMouseOut = React.useCallback((d: ExtendedFeature) => {
     if (pinned) { return; }
@@ -181,9 +204,14 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
   const eventHandlers: Array<[string, (feature: ExtendedFeature) => void]> = [
     ["mouseover", onMouseOver],
     ["click", onMouseClick],
-    ['touchend', onMouseClick],
     ["mouseout", onMouseOut]
   ];
+
+  const redirectionHint = () => {
+    if (province) {
+      moveOverRegionPanel(province);
+    }
+  }
 
   return <Container ref={containerRef}>
     <Grid container spacing={3}>
@@ -195,6 +223,7 @@ const _NationTabVisualizer: React.FunctionComponent<INationTabVisualizer> = ({ p
           data={data}
           selectedDate={selectedDate}
           handleDateChange={handleDateChange}
+          redirectionHint={province && isMobile() ? redirectionHint : undefined}
         />
       </Grid>
       <Grid item md={8} xs={12}>
