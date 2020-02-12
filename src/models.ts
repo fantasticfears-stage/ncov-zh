@@ -602,7 +602,7 @@ export const MOBILE_DISPLAY_PROVINCE = ['湖北省', '广东省', '四川省', '
 export const NOT_MOBILE_REJECT_PROVINCE = ['北京市', '天津市', '上海市', '甘肃省'];
 export const NOT_MOBILE_ACCEPT_PROVINCE = ['新疆维吾尔自治区', '西藏自治区', '内蒙古自治区'];
 
-export const DATE_RANGE = [new Date(2020, 0, 24), new Date(2020, 1, 12)];
+export const DATE_RANGE = [new Date(2020, 0, 24), new Date()];
 
 export enum TextLabelDisplayLevel {
   Disabled = 0,
