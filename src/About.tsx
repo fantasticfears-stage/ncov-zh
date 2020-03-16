@@ -50,12 +50,11 @@ const _About: React.FunctionComponent<IAboutProps> = ({ classes }) => {
               description="desc"
               defaultMessage="链接直达。交互式存档。无论你需要看哪个地方，哪一天的信息，只要到那个页面，分享或者保存链接，就永远可以找到那。
 
-              继续阅读：{caixin}、{caixin2}、{a2n}、{github}"
+              继续阅读：{caixin}、{caixin2}、{github}"
               values={{
                 github: <a href="https://github.com/fantasticfears-stage/ncov-zh">GitHub 代码</a>,
                 caixin: <a href="http://weekly.caixin.com/2020/cw891/">财新周刊-抢救新冠病人</a>,
-                caixin2: <a href="http://m.app.caixin.com/m_topic_detail/1473.html">财新-新冠肺炎防疫全纪录（限时免费）</a>,
-                a2n: <a href="http://a2n.io/">A2N-疫情图表和相关信息</a>
+                caixin2: <a href="http://m.app.caixin.com/m_topic_detail/1473.html">财新-新冠肺炎防疫全纪录（限时免费）</a>
               }}
             />
             </Typography>
