@@ -2,7 +2,7 @@ name: Data
 
 on:
   schedule:
-      - cron:  '*/60 */8 * * *'
+      - cron:  '*/60 */16 * * *'
 jobs:
   build:
     runs-on: ubuntu-latest
