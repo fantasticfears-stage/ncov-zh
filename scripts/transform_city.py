@@ -72,6 +72,7 @@ def transform_city():
         })
     name = reduce(lambda res, x: res.replace(x, ''), STRIP_KEY_PARTS, name)
 
+    if name not in PROVINCE_NAMING_MAP: continue
     cities.to_csv(os.path.join(OUTPUT_PATH, 'provinces', f'{PROVINCE_NAMING_MAP[name]}.csv'), index=False)
 
 
